@@ -101,7 +101,26 @@ const Grade = (() => {
     const hits = c.ordered ? inOrder(want, rt) : new Set(want.filter(w => pool.some(r => same(w, r))));
     const thr = c.thr || (want.length > 12 ? .75 : .8);
     const need = Math.ceil(want.length * thr);
-    return {ok: hits.size >= need, hits, score: hits.size / want.length, target};
+    let ok = hits.size >= need;
+    // Sounds-alike fallback for words the small in-browser model splits or bends:
+    // "man is multi coronum" vs "manus multae cor unum". Compare the letters with the
+    // spaces taken out, allowing 1 slip in 4 letters, anywhere inside what was said.
+    if (!ok && !c.ordered && !want.some(w => GREEKW[w])) {
+      const a = tokens(target).join('');
+      if (a.length >= 10 && within(a, rt.join('')) <= a.length * .25) { ok = true; want.forEach(w => hits.add(w)); }
+    }
+    return {ok, hits, score: ok ? 1 : hits.size / want.length, target};
+  }
+
+  // Fewest edits to turn a into some stretch of b
+  function within(a, b) {
+    let p = Array(b.length + 1).fill(0);
+    for (let i = 1; i <= a.length; i++) {
+      const q = [i];
+      for (let j = 1; j <= b.length; j++) q[j] = Math.min(p[j] + 1, q[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      p = q;
+    }
+    return Math.min(...p);
   }
 
   // Grade a response against a card in a direction ("td": say the definition, "dt": say the term)
