@@ -67,7 +67,8 @@ const Voice = (() => {
     E.mac.status = 'down'; choose(); emit();
   }
 
-  function use(name) { pref = name; choose(); emit(); if (engine === 'browser') prepare(); }
+  // prep: start downloading in-browser Whisper now (not on page load, only when you're about to talk)
+  function use(name, prep = true) { pref = name; choose(); emit(); if (prep && engine === 'browser') prepare(); }
 
   // Start downloading in-browser Whisper ahead of the first answer
   function prepare() {

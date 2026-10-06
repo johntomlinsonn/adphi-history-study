@@ -13,6 +13,8 @@ const ICON = {
   cards: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/></svg>',
   learn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M7 10.5V16c3 2 7 2 10 0v-5.5"/></svg>',
   test: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 4h6M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><path d="M8 13l3 3 5-6"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>',
+  keyboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
   abc: '<svg viewBox="0 0 24 24"><text x="12" y="18.5" text-anchor="middle" font-size="18" font-family="Times New Roman,serif" fill="currentColor">\u03a9</text></svg>',
   speaker: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
@@ -115,6 +117,8 @@ const longCls = (c, dir) => (dir === 'dt' ? c.def : c.term).length > 110 ? 'long
 const empty = () => { $('#app').innerHTML = filterUI(true) + '<div class="panel">No cards in this study set. Turn on a topic above.</div>'; };
 const countdown = s => S.autoAdvance ? `<div class="countdown" style="--d:${s}s"></div>` : '';
 const hearBtn = fn => 'speechSynthesis' in window ? `<button class="btn ghost" onclick="${fn}">${ICON.speaker} Hear it <kbd>L</kbd></button>` : '';
+// Settings that most people leave alone: folded away on phones, open on wide screens
+const moreOptions = html => `<details class="more" ${innerWidth >= 720 ? 'open' : ''}><summary>Options</summary><div class="more-body">${html}</div></details>`;
 function toggle(k, l) { return `<label class="toggle"><input type="checkbox" ${S[k] ? 'checked' : ''} onchange="S.${k}=this.checked;save()"> ${l}</label>`; }
 function seg(key, items) {
   return `<div class="seg">${items.map(([k, l]) => `<button class="${S[key] === k ? 'on' : ''}" onclick="S.${key}='${k}';save();this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">${l}</button>`).join('')}</div>`;
@@ -141,17 +145,43 @@ const MODES = [
   ['test', 'Test', ICON.test], ['stest', 'Spoken Test', ICON.mic], ['abc', 'Alphabet Drill', ICON.abc], ['ref', 'Reference', ICON.list],
 ];
 const VOICE_MODES = ['slearn', 'stest'];
+// Phone tab bar: Learn and Test each cover a typed and a spoken mode (switch at the top of the page)
+const TABS = [['home', 'Home', 'home'], ['flash', 'Cards', 'cards'], ['learn', 'Learn', 'learn', ['learn', 'slearn']], ['test', 'Test', 'test', ['test', 'stest']], ['abc', 'Alphabet', 'abc']];
+const TOUCH = matchMedia('(hover: none) and (pointer: coarse)').matches;
+document.documentElement.classList.toggle('touch', TOUCH);
 let mode = 'home';
 const KEYS = {};
 function nav() {
   $('#nav').innerHTML = MODES.slice(1).map(([k, l, ic]) => `<button class="${mode === k ? 'on' : ''}" onclick="go('${k}')">${ic || ''}${l}</button>`).join('');
+  $('#tabbar').innerHTML = TABS.map(([k, l, ic, group]) => {
+    const on = (group || [k]).includes(mode);
+    return `<button class="${on ? 'on' : ''}" onclick="tab('${k}')" aria-label="${l}">${ICON[ic]}<span>${l}</span></button>`;
+  }).join('');
 }
+// Learn/Test tabs reopen whichever of the typed or spoken version you used last
+function tab(k) {
+  if (k === 'learn') return go(S.learnVia || 'learn');
+  if (k === 'test') return go(S.testVia || 'test');
+  go(k);
+}
+function viaSwitch(group) {
+  const [typed, spoken] = group === 'learn' ? ['learn', 'slearn'] : ['test', 'stest'];
+  return `<div class="via" role="tablist">
+    <button class="${mode === typed ? 'on' : ''}" onclick="go('${typed}')">${ICON.keyboard}Type</button>
+    <button class="${mode === spoken ? 'on' : ''}" onclick="go('${spoken}')">${ICON.mic}Say it</button></div>`;
+}
+// Bring the answer feedback and its button into view (it can be below the fold on a phone)
+function reveal(sel) { const el = $(sel); if (el && innerWidth < 720) setTimeout(() => el.scrollIntoView({block: 'nearest', behavior: 'smooth'}), 30); }
+// Keyboard hints only on devices with a keyboard; touch devices get tap hints
+const keyHint = (keys, touch) => TOUCH ? touch : keys;
 // arg: a list of cards to study instead of the whole study set
 function go(m, arg) {
   clearTimeout(SL.timer); clearTimeout(ST.timer); clearTimeout(T.timer); clearTimeout(L.timer); clearInterval(A.tick);
   Voice.cancel(); Speech.stop();
   if (!VOICE_MODES.includes(m) && Voice.state !== 'off') Voice.release();
   mode = m; nav(); window.scrollTo(0, 0);
+  if (m === 'learn' || m === 'slearn') { S.learnVia = m; save(); }
+  if (m === 'test' || m === 'stest') { S.testVia = m; save(); }
   if (location.hash !== '#' + m) history.replaceState(null, '', '#' + m);
   ({home, flash: flashStart, learn: learnStart, slearn: slStart, test: testSetup, stest: stSetup, abc: abcStart, ref})[m](arg);
 }
@@ -190,7 +220,7 @@ const voiceBanner = () => `<div id="vbanner">${bannerHTML()}</div>`;
 function engineSeg() {
   const v = Voice.info();
   const opts = [['auto', 'Auto'], ['mac', 'Mac (MLX)'], ['browser', 'In-browser Whisper'], ...(Voice.hasSpeech ? [['speech', 'Browser speech']] : [])];
-  return `<div><div class="flabel">Voice engine</div><div class="seg" id="engseg">${opts.map(([k, l]) => `<button class="${(S.engine || 'auto') === k ? 'on' : ''}" onclick="pickEngine('${k}')">${l}</button>`).join('')}</div>
+  return `<div><div class="flabel">Voice engine</div><div class="seg grid2" id="engseg">${opts.map(([k, l]) => `<button class="${(S.engine || 'auto') === k ? 'on' : ''}" onclick="pickEngine('${k}')">${l}</button>`).join('')}</div>
     <div class="muted" id="enginfo" style="margin-top:4px">${engineNote(v)}</div></div>`;
 }
 function engineNote(v) {
@@ -292,7 +322,7 @@ function flashRender() {
   const c = F.deck[F.i];
   $('#app').innerHTML = `${filterUI()}
   <div class="top"><span>${F.i + 1} / ${F.deck.length}</span><div class="bar"><i style="width:${(F.i + 1) / F.deck.length * 100}%"></i></div><span>Known ${F.known.size}</span></div>
-  <div class="flash ${F.flip ? 'flip' : ''}" onclick="F.flip=!F.flip;this.classList.toggle('flip')">
+  <div class="flash ${F.flip ? 'flip' : ''}" id="flash">
     <div class="in"><div class="face">${tagHTML(c)}${img(c)}<div>${termHTML(c)}</div></div>
     <div class="face back">${esc(c.def)}</div></div></div>
   <div class="row"><button class="btn alt" onclick="fNav(-1)">&larr;</button>
@@ -300,7 +330,25 @@ function flashRender() {
     <button class="btn" onclick="fKnow(true)">Know it <kbd>2</kbd></button>
     <button class="btn alt" onclick="fNav(1)">&rarr;</button><span class="spacer"></span>
     ${hearBtn('Speech.say(F.deck[F.i].def)')}<button class="btn ghost" onclick="flashStart()">Shuffle</button></div>
-  <p class="muted">Click the card or press <kbd>Space</kbd> to flip. Arrow keys move.</p>`;
+  <p class="muted">${keyHint('Click the card or press <kbd>Space</kbd> to flip. Arrow keys move.', 'Tap to flip. Swipe right if you know it, left if you\u2019re still learning.')}</p>`;
+  swipeable($('#flash'));
+}
+function swipeable(el) {
+  let x0 = null, y0 = 0, dx = 0;
+  el.addEventListener('pointerdown', e => { x0 = e.clientX; y0 = e.clientY; dx = 0; el.setPointerCapture(e.pointerId); el.style.transition = 'none'; });
+  el.addEventListener('pointermove', e => {
+    if (x0 === null) return;
+    dx = e.clientX - x0;
+    if (Math.abs(dx) > Math.abs(e.clientY - y0)) { el.style.transform = `translateX(${dx}px) rotate(${dx / 25}deg)`; el.dataset.swipe = dx > 40 ? 'know' : dx < -40 ? 'learning' : ''; }
+  });
+  const end = () => {
+    if (x0 === null) return;
+    x0 = null; el.style.transition = ''; el.dataset.swipe = '';
+    if (Math.abs(dx) > 80) { el.style.transform = `translateX(${dx > 0 ? 120 : -120}%) rotate(${dx > 0 ? 12 : -12}deg)`; setTimeout(() => fKnow(dx > 0), 160); }
+    else { el.style.transform = ''; if (Math.abs(dx) < 6) { F.flip = !F.flip; el.classList.toggle('flip'); } }
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', () => { x0 = null; el.style.transform = ''; el.style.transition = ''; });
 }
 function fNav(d) { F.i = (F.i + d + F.deck.length) % F.deck.length; F.flip = false; flashRender(); }
 function fKnow(k) { const id = F.deck[F.i].id; k ? F.known.add(id) : F.known.delete(id); fNav(1); }
@@ -348,7 +396,7 @@ function learnRender() {
     body = (ans.length > 60 ? `<textarea id="wa" placeholder="Type the answer"></textarea>` : `<input type="text" id="wa" placeholder="Type the answer" autocomplete="off">`) +
       `<div class="row" style="margin-top:10px"><button class="btn" onclick="learnW()">Check</button><button class="btn alt" onclick="learnHint()">Hint <kbd>H</kbd></button><button class="btn ghost" onclick="learnSkip()">Don't know</button></div>`;
   }
-  $('#app').innerHTML = `${filterUI()}
+  $('#app').innerHTML = `${viaSwitch('learn')}${filterUI()}
   <div class="top"><span>${L.mastered()}/${L.items.length} mastered</span>${segs(L)}<span id="tally">${L.right}&#10003; ${L.wrong}&#10007;</span></div>
   <div class="card">${tagHTML(c)}${L.dir === 'td' ? img(c) : ''}
     <div class="prompt ${longCls(c, L.dir)}">${promptHTML(c, L.dir)}</div>
@@ -384,6 +432,7 @@ function learnResult(ok, g, written) {
   if (!ok && S.readAloud) Speech.say(g.target);
   const copy = !ok && L.type === 'w';
   if (copy) L.phase = 'copy';
+  $('#body .row')?.remove();                                       // Check / Hint / Don't know are done
   $('#fb').innerHTML = `<div class="fb ${ok ? 'ok' : 'no'}"><b class="v">${hinted ? 'Correct, with a hint' : ok ? 'Correct' : 'Not quite'}</b>${ok && !written ? '' : 'Answer: ' + (written ? Grade.marked(g, esc) : esc(g.target))}${hinted ? '<div class="muted">It will come back once more without the hint.</div>' : ''}</div>
     ${copy ? `<div class="echo">Type it correctly to lock it in<div class="typebox" style="margin:8px auto 0"><input type="text" id="copy" autocomplete="off" placeholder="Type the answer"><button class="btn alt" onclick="learnCopy()">Check</button></div><div id="copyfb" class="muted" style="font-weight:400"></div></div>` : ''}
     <div class="row" style="margin-top:12px"><button class="btn" id="nx" onclick="learnNext()">${copy ? 'Skip' : 'Continue'} <kbd>Enter</kbd></button>
@@ -391,7 +440,8 @@ function learnResult(ok, g, written) {
     ${ok && !hinted ? countdown(1) : ''}`;
   $('#tally').innerHTML = `${L.right}&#10003; ${L.wrong}&#10007;`;
   if (copy) { const ci = $('#copy'); ci.focus(); ci.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ci.value.trim() ? learnCopy() : learnNext(); } }); }
-  else $('#nx').focus();
+  else $('#nx').focus({preventScroll: true});
+  reveal('#fb .row');
   if (ok && !hinted && S.autoAdvance) L.timer = setTimeout(learnNext, 1000);
 }
 function learnCopy() {
@@ -422,15 +472,13 @@ function slStart(cards) {
   cards = cards || pool(); if (!cards.length) return empty();
   SL = Object.assign(Sched(cards), {token: 0, phase: 'intro'});
   if (Voice.state !== 'off') return slNext();
-  $('#app').innerHTML = `${filterUI()}${voiceBanner()}
+  $('#app').innerHTML = `${viaSwitch('learn')}${filterUI()}${voiceBanner()}
   <div class="card"><h2>Spoken Learn</h2>
-    <p>Each card shows a term. <b>Say the answer out loud.</b> The mic listens on its own and stops when you pause, then your Mac transcribes it locally.</p>
-    <p class="muted">New cards are shown first so you can read them aloud. Get a card right twice to master it. Miss one and you say it back, and it returns two cards later. Stuck? Press <kbd>H</kbd> for a hint.</p>
-    <div class="row" style="justify-content:center;margin:14px 0 6px">${dirSeg()}</div>
-    <div class="row" style="justify-content:center;text-align:center;margin:8px 0">${engineSeg()}</div>
-    <div class="row" style="justify-content:center;gap:8px 18px">${toggle('preview', 'Preview new cards')}${toggle('autoListen', 'Listen automatically')}${toggle('autoAdvance', 'Auto-advance')}${toggle('readAloud', 'Read answers aloud after a miss')}${toggle('patient', 'Allow longer pauses')}</div>
-    <div class="row" style="justify-content:center;margin-top:16px"><button class="btn" onclick="slBegin()">${micIcon(18)} Start speaking <kbd>Space</kbd></button></div>
-    <div id="micstat" class="micstat" style="margin-top:8px"></div></div>`;
+    <p>Each card shows a term. <b>Say the answer out loud.</b> The mic listens on its own and stops when you pause.</p>
+    <div class="row start-row"><button class="btn" onclick="slBegin()">${micIcon(18)} Start speaking <kbd>Space</kbd></button></div>
+    <div id="micstat" class="micstat"></div>
+    <p class="muted">New cards are shown first so you can read them aloud. Get a card right twice to master it. Miss one and you say it back, and it returns two cards later. Stuck? ${TOUCH ? 'Tap <b>Hint</b>.' : 'Press <kbd>H</kbd> for a hint.'}</p>
+    ${moreOptions(`${dirSeg()}${engineSeg()}<div class="toggles">${toggle('preview', 'Preview new cards')}${toggle('autoListen', 'Listen automatically')}${toggle('autoAdvance', 'Auto-advance')}${toggle('readAloud', 'Read answers aloud after a miss')}${toggle('patient', 'Allow longer pauses')}</div>`)}</div>`;
 }
 async function slBegin() { if (await micReady()) slNext(); }
 function slNext() {
@@ -445,16 +493,16 @@ function slNext() {
 }
 function slRender() {
   const c = SL.cur;
-  $('#app').innerHTML = `${filterUI()}${voiceBanner()}
+  $('#app').innerHTML = `${viaSwitch('learn')}${filterUI()}${voiceBanner()}
   <div class="top"><span>${SL.mastered()}/${SL.items.length} mastered</span>${segs(SL)}<span id="tally">${SL.right}&#10003; ${SL.wrong}&#10007;</span></div>
   <div class="card">${tagHTML(c)}${SL.dir === 'td' ? img(c) : ''}
     <div class="prompt ${longCls(c, SL.dir)}">${promptHTML(c, SL.dir)}</div>
     <div class="askline">Say the ${SL.dir === 'td' ? (c.glyph ? 'letter name' : 'definition') : 'term'}</div>
     <div class="hint" id="hint"></div>
     <div id="res"></div>
-    ${micZone('<kbd>Space</kbd> talk / stop &middot; <kbd>H</kbd> hint &middot; <kbd>S</kbd> don\'t know &middot; <kbd>L</kbd> hear it &middot; <kbd>Enter</kbd> next')}
+    ${micZone(keyHint('<kbd>Space</kbd> talk / stop &middot; <kbd>H</kbd> hint &middot; <kbd>S</kbd> don\'t know &middot; <kbd>L</kbd> hear it &middot; <kbd>Enter</kbd> next', 'The mic listens on its own. Tap it to stop or start.'))}
     ${typeBox()}</div>
-  <div class="row" id="acts"></div>`;
+  <div class="row acts" id="acts">${TOUCH ? `<button class="btn alt" onclick="slHint()">Hint</button><button class="btn ghost" onclick="slSkipCard()">Don't know</button>` : ''}</div>`;
 }
 async function slListen() {
   clearTimeout(SL.timer);
@@ -505,6 +553,7 @@ function slShow() {
   $('#tally').innerHTML = `${SL.right}&#10003; ${SL.wrong}&#10007;`;
   $('#acts').innerHTML = `<button class="btn" onclick="slNext()">${p === 'preview' ? 'Skip' : 'Continue'} <kbd>Enter</kbd></button>` +
     (p === 'echo' && SL.said ? `<button class="btn alt" onclick="slOverride()">I was right <kbd>O</kbd></button>` : '') + hearBtn('slHear()');
+  reveal('#acts');
 }
 function slHint() {
   if (SL.phase !== 'ask') return;
@@ -558,7 +607,7 @@ function testSetup() {
   const max = pool().length; if (!max) return empty();
   S.testN = Math.min(S.testN, max) || max;
   T = {};
-  $('#app').innerHTML = `${filterUI()}<div class="panel setup"><h2>Test</h2>
+  $('#app').innerHTML = `${viaSwitch('test')}${filterUI()}<div class="panel setup"><h2>Test</h2>
   <div><div class="flabel">Feedback</div>${seg('fb', [['instant', 'Instant, after every question'], ['end', 'At the end, like an exam']])}</div>
   <div><div class="flabel">Questions</div><input type="number" id="tn" min="1" max="${max}" value="${S.testN}" style="width:110px"> <span class="muted">of ${max}</span></div>
   <div><div class="flabel">Question types</div><div class="chips">${Object.entries(QT).map(([k, l]) => `<button class="chip ${S.types[k] ? 'on' : ''}" onclick="S.types.${k}=!S.types.${k};save();this.classList.toggle('on')">${l}</button>`).join('')}</div></div>
@@ -659,7 +708,8 @@ function itResult(ok, html, canOverride, statted) {
     <div class="row" style="margin-top:12px"><button class="btn" id="nx" onclick="itNext()">${T.i + 1 < T.qs.length ? 'Next' : 'See results'} <kbd>Enter</kbd></button>
     ${canOverride && !ok ? `<button class="btn alt" onclick="itOverride()">I was right <kbd>O</kbd></button>` : ''}${q.c ? hearBtn('itHear()') : ''}</div>
     ${ok ? countdown(1) : ''}`;
-  $('#nx').focus();
+  $('#nx').focus({preventScroll: true});
+  reveal('#fb .row');
   if (ok && S.autoAdvance) T.timer = setTimeout(itNext, 1000);
 }
 function itHear() { const q = T.qs[T.i]; if (q?.c) Speech.say(answerOf(q.c, q.dir || 'td')); }
@@ -731,15 +781,13 @@ function stSetup() {
   const max = pool().length; if (!max) return empty();
   S.stN = Math.min(S.stN, max) || max;
   ST = {phase: 'setup'};
-  $('#app').innerHTML = `${filterUI()}${voiceBanner()}<div class="panel setup"><h2>Spoken Test</h2>
+  $('#app').innerHTML = `${viaSwitch('test')}${filterUI()}${voiceBanner()}<div class="panel setup"><h2>Spoken Test</h2>
   <p class="muted" style="margin:0">One card at a time. Say each answer out loud.</p>
   <div><div class="flabel">Feedback</div>${seg('sfb', [['instant', 'Instant, after every answer'], ['end', 'At the end, like an oral exam']])}</div>
   <div><div class="flabel">Questions</div><input type="number" id="stn" min="1" max="${max}" value="${S.stN}" style="width:110px"> <span class="muted">of ${max}</span></div>
-  <div><div class="flabel">Direction</div>${dirSeg()}</div>
-  ${engineSeg()}
-  <div class="row" style="gap:8px 18px">${toggle('autoListen', 'Listen automatically')}${toggle('autoAdvance', 'Auto-advance')}${toggle('readAloud', 'Read answers aloud after a miss')}${toggle('patient', 'Allow longer pauses')}</div>
-  <div class="row"><button class="btn" onclick="stBuild()">${micIcon(18)} Start spoken test <kbd>Space</kbd></button></div>
-  <div id="micstat" class="micstat"></div></div>`;
+  <div class="row start-row"><button class="btn" onclick="stBuild()">${micIcon(18)} Start spoken test <kbd>Space</kbd></button></div>
+  <div id="micstat" class="micstat"></div>
+  ${moreOptions(`<div><div class="flabel">Direction</div>${dirSeg()}</div>${engineSeg()}<div class="toggles">${toggle('autoListen', 'Listen automatically')}${toggle('autoAdvance', 'Auto-advance')}${toggle('readAloud', 'Read answers aloud after a miss')}${toggle('patient', 'Allow longer pauses')}</div>`)}</div>`;
 }
 async function stBuild(cards) {
   if (!cards) { S.stN = Math.max(1, Math.min(+($('#stn')?.value) || S.stN, pool().length)); save(); cards = shuffle(pool()).slice(0, S.stN); }
@@ -758,9 +806,9 @@ function stShow() {
     <div class="prompt ${longCls(c, q.dir)}">${promptHTML(c, q.dir)}</div>
     <div class="askline">Say the ${q.dir === 'td' ? (c.glyph ? 'letter name' : 'definition') : 'term'}</div>
     <div id="res"></div>
-    ${micZone(`<kbd>Space</kbd> talk / stop &middot; ${ST.fb === 'instant' ? '' : '<kbd>R</kbd> redo &middot; '}<kbd>S</kbd> skip &middot; <kbd>Enter</kbd> next`)}
+    ${micZone(keyHint(`<kbd>Space</kbd> talk / stop &middot; ${ST.fb === 'instant' ? '' : '<kbd>R</kbd> redo &middot; '}<kbd>S</kbd> skip &middot; <kbd>Enter</kbd> next`, 'The mic listens on its own. Tap it to stop or start.'))}
     ${typeBox()}</div>
-  <div class="row" id="acts"><button class="btn alt" onclick="stSkip()">Skip <kbd>S</kbd></button><span class="spacer"></span><button class="btn ghost" onclick="stDone()">End test</button></div>`;
+  <div class="row acts" id="acts"><button class="btn alt" onclick="stSkip()">Skip <kbd>S</kbd></button><span class="spacer"></span><button class="btn ghost" onclick="stDone()">End test</button></div>`;
   if (S.autoListen) stListen();
 }
 async function stListen() {
@@ -787,6 +835,7 @@ function stAnswer(text) {
     $('#acts').innerHTML = `<button class="btn" onclick="stNext()">${ST.i + 1 < ST.qs.length ? 'Next' : 'See results'} <kbd>Enter</kbd></button>` +
       (!ok && text ? `<button class="btn alt" onclick="stOverride()">I was right <kbd>O</kbd></button>` : '') + hearBtn('stHear()') +
       `<span class="spacer"></span><button class="btn ghost" onclick="stDone()">End test</button>`;
+    reveal('#acts');
     if (ok && S.autoAdvance) ST.timer = setTimeout(stNext, 1200);
     else if (!ok && S.readAloud) Speech.say(answerOf(q.c, q.dir));
     return;
@@ -850,15 +899,16 @@ function abcStart() {
   clearInterval(A.tick);
   A = {i: 0, errs: GK.map(() => 0), total: 0, t0: 0, done: false};
   const best = store.get('abcBest', null);
-  $('#app').innerHTML = `<div class="panel"><h2>Alphabet Drill</h2>
-    <p class="muted" style="margin:0 0 10px">Type each Greek letter name in order. Type just enough to tell it apart: <b>a</b> for Alpha, <b>ep</b> for Epsilon, <b>et</b> for Eta. The clock starts on your first key.</p>
+  $('#app').innerHTML = `<div class="panel abc-intro"><h2>Alphabet Drill</h2>
+    <p class="muted">Type the Greek letters in order. Just enough to tell each apart: <b>a</b> Alpha, <b>ep</b> Epsilon, <b>et</b> Eta. The clock starts on your first letter.</p>
     <label class="toggle"><input type="checkbox" ${S.abcGlyph ? 'checked' : ''} onchange="S.abcGlyph=this.checked;save();abcDraw();$('#abcin').focus()"> Show the next Greek letter as a cue</label></div>
-  <div class="top"><span id="abcpos">0 / ${GK.length}</span><div class="bar"><i id="abcbar" style="width:0"></i></div><span id="abctime">0.0s</span></div>
-  <div class="card"><div class="abc-grid" id="abcgrid"></div>
+  <div class="top"><span id="abcpos">0 / ${GK.length}</span><div class="bar"><i id="abcbar" style="width:0"></i></div><span id="abctime">0.0s</span>
+    <button class="btn ghost" onclick="abcStart()" title="Restart">Restart <kbd>Esc</kbd></button></div>
+  <div class="card abc-card">
     <div id="abccue" class="abc-cue"></div>
-    <input type="text" id="abcin" class="abc-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Start typing&hellip;">
-    <div class="micstat" id="abcmsg">${best ? `Best clean run: ${fmtTime(best)}` : ''}</div></div>
-  <div class="row"><button class="btn alt" onclick="abcStart()">Restart <kbd>Esc</kbd></button></div>`;
+    <input type="text" id="abcin" class="abc-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Type the next letter&hellip;">
+    <div class="micstat" id="abcmsg">${best ? `Best clean run: ${fmtTime(best)}` : ''}</div>
+    <div class="abc-grid" id="abcgrid"></div></div>`;
   const el = $('#abcin');
   el.addEventListener('input', abcInput);
   el.addEventListener('keydown', e => {
@@ -882,7 +932,7 @@ function abcInput(e) {
   let raw = el.value.toLowerCase().replace(/[^a-z]/g, '');
   el.value = raw;
   if (!raw) { if (sep) A.tail = ''; return; }                      // a space ends the last name
-  if (!A.t0) { A.t0 = performance.now(); A.tick = setInterval(abcClock, 100); }
+  if (!A.t0) { A.t0 = performance.now(); A.tick = setInterval(abcClock, 100); $('.abc-intro')?.classList.add('started'); }
   const starts = v => NAMES.some(n => n.toLowerCase().startsWith(v));
   const only = v => { const h = NAMES.filter(n => n.toLowerCase().startsWith(v)); return h.length === 1 ? h[0] : null; };
   let viaTail = false;
@@ -953,7 +1003,7 @@ function ref() {
 }
 
 /* ---------- boot ---------- */
-Voice.use(S.engine || 'auto');
+Voice.use(S.engine || 'auto', false);
 Voice.probe();
 const start = location.hash.slice(1);
 go(MODES.some(m => m[0] === start) ? start : 'home');
