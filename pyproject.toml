@@ -1,0 +1,9 @@
+[project]
+name = "adphi-study"
+version = "0.1.0"
+description = "ADPhi study site with local Apple Silicon (MLX Whisper) voice transcription"
+requires-python = ">=3.11"
+dependencies = [
+    "mlx-whisper>=0.4",
+    "numpy",
+]
