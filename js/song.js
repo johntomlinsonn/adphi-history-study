@@ -56,7 +56,13 @@ const pPaused = () => !P.audio || P.audio.paused;
 const pDur = () => P.audio?.duration || 0;
 function pPlay() { const a = pAudio(); if (a.src) a.play().catch(() => {}); else P.pending = {s: 0, play: true}; }
 function pPause() { P.audio?.pause(); }
-function pToggle() { pPaused() ? pPlay() : pPause(); }
+function pToggle() {
+  if (!pPaused()) return pPause();
+  const a = pAudio();
+  // Whole song from the top (or again after it ended): skip the hummed intro
+  if (SG.view === 'sing' && !songSel().length && (a.ended || pNow() < firstWords() - 1)) return pSeek(firstWords(), true);
+  pPlay();
+}
 function pSeek(s, play) {
   P.hold = performance.now() + 900;
   const au = pAudio();
@@ -99,8 +105,12 @@ const PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7
 const songSel = () => (S.songSel || []).filter(pi => pi < SG.parts.length).sort((a, b) => a - b);
 function partEnd(pi) {
   const next = SG.parts[pi + 1], last = SG.parts[pi].lines.at(-1);
-  return next ? next.lines[0].t : last.t == null ? null : Math.min(pDur() || 1e9, last.t + 8);
+  if (next) return next.lines[0].t;
+  if (last.t == null) return null;
+  return SONG.end > last.t ? SONG.end : Math.min(pDur() || 1e9, last.t + 8);
 }
+// The recording opens with the tune hummed through once; the whole song starts at the first words
+const firstWords = () => SG.lines?.find(l => l.t != null)?.t ?? 0;
 function songRange() {
   const sel = songSel();
   if (!sel.length) return null;
@@ -184,7 +194,7 @@ function songSet(sel) {
   S.songSel = [...new Set(sel)].sort((a, b) => a - b); save();
   singRender();
   const r = songRange();
-  if (songSynced()) pSeek(r ? r.runs[0].start - LEAD : 0, true);
+  if (songSynced()) pSeek(r ? r.runs[0].start - LEAD : firstWords(), true);
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 function songPick(pi) { songSet(pi < 0 ? [] : [pi]); }

@@ -57,8 +57,9 @@ count as misses in the other modes, so they come up first in Learn.
 Learn the fraternity song a part at a time, singing along with lyrics that follow the recording
 (Cornell University Alumni Chorus, hosted with the site as `audio/xaipe.mp3`).
 
-The lyrics come built in, split into Verse 1, Chorus, Verse 2, Chorus, Verse 3, Chorus, and timed to the recording
-(the first 35 seconds are the tune played through once, so the page counts down to the first words).
+The lyrics come built in, split into Verse 1, Chorus, Verse 2, Chorus, Verse 3, Chorus. Each line's start was placed
+with Whisper small by forced alignment (Whisper is given two known lines over their audio and marks where the second
+begins). The recording opens with about 34 seconds of humming, so the whole song starts at the first words.
 
 1. **Sing along**: the current line lights up and a bar under it shows when the next line comes. Tap parts to practice them: pick one, or several at once (say Verse 1 + Verse 3), and playback loops through just those, skipping the rest. Tap a part again to drop it.
    Switch from **Words** to **Hints** (first letters) to **Hidden** as you learn it. Hidden lines show once they've been
