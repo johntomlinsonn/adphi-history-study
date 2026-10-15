@@ -32,3 +32,16 @@ const CARDS = [
  {id:'greek',cat:'Greek Alphabet',fwd:true,ordered:true,thr:.9,term:'Recite the Greek alphabet in order',def:NAMES.join(', '),
   parts:[0,6,12,18].map(i => NAMES.slice(i, i + 6).join(', '))},
 ];
+
+/* ---------- the song ----------
+ text: one lyric line per line. A [Name] line or a blank line starts a new part.
+ A line can start with its time in the recording, [m:ss.cc], which the Song page
+ fills in when you tap along (Sync). Use "Copy lyrics" on the Song page and paste
+ the result here to put the words and timings on the site for everyone.
+*/
+const SONG = {
+ title: 'XAIPE',
+ by: 'Cornell University Alumni Chorus, Douglas Jimerson',
+ spotify: '0azqhNnMccu80gQ4xqRlTO',
+ text: ``,
+};
