@@ -60,7 +60,7 @@ Learn the fraternity song a part at a time, singing along with lyrics that follo
 The lyrics come built in, split into Verse 1, Chorus, Verse 2, Chorus, Verse 3, Chorus, and timed to the recording
 (the first 35 seconds are the tune played through once, so the page counts down to the first words).
 
-1. **Sing along**: the current line lights up and a bar under it shows when the next line comes. Pick a part to loop it.
+1. **Sing along**: the current line lights up and a bar under it shows when the next line comes. Tap parts to practice them: pick one, or several at once (say Verse 1 + Verse 3), and playback loops through just those, skipping the rest. Tap a part again to drop it.
    Switch from **Words** to **Hints** (first letters) to **Hidden** as you learn it. Hidden lines show once they've been
    sung so you can check yourself. Mark parts learned, then use **Sing it from the start** to chain them together.
 2. **Fix timing** if it ever drifts: nudge the words earlier/later, edit the lyrics, or **Sync** a part again by tapping
