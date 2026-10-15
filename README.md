@@ -57,11 +57,14 @@ count as misses in the other modes, so they come up first in Learn.
 Learn the fraternity song a part at a time, singing along with lyrics that follow the recording
 ([Spotify](https://open.spotify.com/track/0azqhNnMccu80gQ4xqRlTO), Cornell University Alumni Chorus).
 
-1. **Add the lyrics** once: paste them in, one sung line per line, with `[Part name]` lines (or blank lines) between parts.
-2. **Sync** once: play the song and tap `Space` (or the big button) as each line starts. You can redo a single part later.
-3. **Sing along**: the current line lights up and a bar under it shows when the next line comes. Pick a part to loop it.
+The lyrics come built in, split into Verse 1, Chorus, Verse 2, Chorus, Verse 3, Chorus, and timed to the recording
+(the first 35 seconds are the tune played through once, so the page counts down to the first words).
+
+1. **Sing along**: the current line lights up and a bar under it shows when the next line comes. Pick a part to loop it.
    Switch from **Words** to **Hints** (first letters) to **Hidden** as you learn it. Hidden lines show once they've been
    sung so you can check yourself. Mark parts learned, then use **Sing it from the start** to chain them together.
+2. **Fix timing** if it ever drifts: nudge the words earlier/later, edit the lyrics, or **Sync** a part again by tapping
+   `Space` as each line starts.
 
 The player is Spotify's embed. Log in at open.spotify.com in the same browser for the full song; otherwise Spotify
 plays a 30-second preview. Or choose **Audio file** to play your own copy, which can also be slowed to 0.75×.

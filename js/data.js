@@ -43,5 +43,42 @@ const SONG = {
  title: 'XAIPE',
  by: 'Cornell University Alumni Chorus, Douglas Jimerson',
  spotify: '0azqhNnMccu80gQ4xqRlTO',
- text: ``,
+ tune: 'O Tannenbaum (O Christmas Tree)',
+ text: `
+[Verse 1]
+[0:34.68] Kaire Alpha Delta Phi!
+[0:39.14] Ace ai-oh-nah thallan.
+[0:43.24] Owk-sah-noi-oh doonamai,
+[0:47.36] Kath hapantah neekahn.
+
+[Chorus]
+[0:51.60] Selenay tik-toh-menay,
+[0:55.98] Astron kai marmairon,
+[1:00.42] Melpsomen yoo-froh-zoo-nay,
+[1:04.74] Hoomin azmah faidron.
+
+[Verse 2]
+[1:09.16] Entheday kah-lee-oh-pay,
+[1:13.52] Soon pasais moo-sah-ahn.
+[1:17.78] Nai-eh-tai en soo-nah-fay,
+[1:21.96] Haymas prah-ohs treffahn.
+
+[Chorus, 2nd time]
+[1:26.24] Selenay tik-toh-menay,
+[1:30.62] Astron kai marmairon,
+[1:34.94] Melpsomen yoo-froh-zoo-nay,
+[1:39.18] Hoomin azmah faidron.
+
+[Verse 3]
+[1:43.60] Nah-ohs kahloo kai-gah-thoo,
+[1:48.06] Ace ai-oh-nah staysahn.
+[1:52.46] Erah-oh-men soo hiroo,
+[1:56.78] Erah-oh-men koodahn.
+
+[Chorus, last time]
+[2:01.26] Selenay tik-toh-menay,
+[2:05.64] Astron kai marmairon,
+[2:10.00] Melpsomen yoo-froh-zoo-nay,
+[2:14.48] Hoomin azmah faidron.
+`,
 };

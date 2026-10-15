@@ -121,7 +121,7 @@ function songStart() {
   else if (SG.view === 'edit' || SG.view === 'sync') SG.view = 'sing';
   const file = S.songSrc === 'file';
   $('#app').innerHTML = `<div class="panel song-head">
-    <div><h2>${esc(SONG.title)}</h2><p class="muted" style="margin:0">${esc(SONG.by)}</p></div>
+    <div><h2>${esc(SONG.title)}</h2><p class="muted" style="margin:0">${esc(SONG.by)}${SONG.tune ? ` &middot; to the tune of ${esc(SONG.tune)}` : ''}</p></div>
     <div class="seg">${[['spotify', 'Spotify'], ['file', 'Audio file']].map(([k, l]) => `<button class="${(S.songSrc || 'spotify') === k ? 'on' : ''}" onclick="songSrc('${k}')">${l}</button>`).join('')}</div>
     ${file ? `<div class="row"><label class="btn alt">Choose the song file<input type="file" accept="audio/*" hidden onchange="songFile(this)"></label>
         <span class="muted">${P.file ? esc(P.file) : 'An MP3 or M4A of the recording. It stays on this device.'}</span></div>
@@ -179,7 +179,7 @@ function singRender() {
   ${!synced ? `<div class="panel song-note"><b>The words aren't timed to the music yet.</b> Tap along once and they'll follow the song from then on.
      <div class="row" style="margin-top:8px"><button class="btn" onclick="songView('sync')">Sync the lyrics</button></div></div>` : ''}
   <div class="panel lyrics m-${words} ${synced ? '' : 'unsynced'}" id="lyrics">
-    <div class="row lyr-top"><b>${esc(rangeName(r))}</b><span class="spacer"></span>
+    <div class="row lyr-top"><b>${esc(rangeName(r))}</b><span class="muted" id="songcue"></span><span class="spacer"></span>
       ${r && synced ? `<label class="toggle"><input type="checkbox" ${S.songLoop !== false ? 'checked' : ''} onchange="S.songLoop=this.checked;save()"> Loop</label>` : ''}</div>
     ${parts.map(([p, pi]) => `<h4>${pi + 1}. ${esc(p.name)}${done[pi] ? ' <span class="badge ok">Learned</span>' : ''}</h4>
       ${p.lines.map(l => `<div class="ln" data-k="${SG.lines.indexOf(l)}" onclick="songLine(${SG.lines.indexOf(l)})">${wordsHTML(l.text)}</div>`).join('')}`).join('')}
@@ -275,6 +275,9 @@ function songTick() {
     const el = document.querySelector(`#lyrics .ln[data-k="${k}"]`);
     if (el && playing && performance.now() - SG.userScroll > 3000) el.scrollIntoView({block: 'center', behavior: 'smooth'});
   }
+  // The recording opens with the tune played through: count down to the first words
+  const first = SG.lines.find(l => l.t != null), cue = $('#songcue');
+  if (cue) cue.textContent = first && k < 0 && first.t - t > 3 && (playing || t > 1) ? `Intro: words in ${Math.ceil(first.t - t)}s` : '';
   if (k >= 0) {
     const l = SG.lines[k], next = SG.lines.slice(k + 1).find(x => x.t != null);
     const end = next ? next.t : l.t + 4;
