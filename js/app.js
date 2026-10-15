@@ -17,6 +17,7 @@ const ICON = {
   keyboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>',
   abc: '<svg viewBox="0 0 24 24"><text x="12" y="18.5" text-anchor="middle" font-size="18" font-family="Times New Roman,serif" fill="currentColor">\u03a9</text></svg>',
+  music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
   speaker: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
 };
 const micIcon = n => ICON.mic.replace('<svg', `<svg width="${n}" height="${n}"`);
@@ -142,15 +143,15 @@ const Speech = {
 /* ---------- routing ---------- */
 const MODES = [
   ['home', 'Overview'], ['flash', 'Flashcards', ICON.cards], ['learn', 'Learn', ICON.learn], ['slearn', 'Spoken Learn', ICON.mic],
-  ['test', 'Test', ICON.test], ['stest', 'Spoken Test', ICON.mic], ['abc', 'Alphabet Drill', ICON.abc], ['ref', 'Reference', ICON.list],
+  ['test', 'Test', ICON.test], ['stest', 'Spoken Test', ICON.mic], ['abc', 'Alphabet Drill', ICON.abc], ['song', 'XAIPE Song', ICON.music], ['ref', 'Reference', ICON.list],
 ];
 const VOICE_MODES = ['slearn', 'stest'];
 // Phone tab bar: Learn and Test each cover a typed and a spoken mode (switch at the top of the page)
-const TABS = [['home', 'Home', 'home'], ['flash', 'Cards', 'cards'], ['learn', 'Learn', 'learn', ['learn', 'slearn']], ['test', 'Test', 'test', ['test', 'stest']], ['abc', 'Alphabet', 'abc']];
+const TABS = [['home', 'Home', 'home'], ['flash', 'Cards', 'cards'], ['learn', 'Learn', 'learn', ['learn', 'slearn']], ['test', 'Test', 'test', ['test', 'stest']], ['abc', 'Alphabet', 'abc'], ['song', 'Song', 'music']];
 const TOUCH = matchMedia('(hover: none) and (pointer: coarse)').matches;
 document.documentElement.classList.toggle('touch', TOUCH);
 let mode = 'home';
-const KEYS = {};
+const KEYS = {song: songKey};
 function nav() {
   $('#nav').innerHTML = MODES.slice(1).map(([k, l, ic]) => `<button class="${mode === k ? 'on' : ''}" onclick="go('${k}')">${ic || ''}${l}</button>`).join('');
   $('#tabbar').innerHTML = TABS.map(([k, l, ic, group]) => {
@@ -177,13 +178,13 @@ const keyHint = (keys, touch) => TOUCH ? touch : keys;
 // arg: a list of cards to study instead of the whole study set
 function go(m, arg) {
   clearTimeout(SL.timer); clearTimeout(ST.timer); clearTimeout(T.timer); clearTimeout(L.timer); clearInterval(A.tick);
-  Voice.cancel(); Speech.stop();
+  Voice.cancel(); Speech.stop(); songLeave();
   if (!VOICE_MODES.includes(m) && Voice.state !== 'off') Voice.release();
   mode = m; nav(); window.scrollTo(0, 0);
   if (m === 'learn' || m === 'slearn') { S.learnVia = m; save(); }
   if (m === 'test' || m === 'stest') { S.testVia = m; save(); }
   if (location.hash !== '#' + m) history.replaceState(null, '', '#' + m);
-  ({home, flash: flashStart, learn: learnStart, slearn: slStart, test: testSetup, stest: stSetup, abc: abcStart, ref})[m](arg);
+  ({home, flash: flashStart, learn: learnStart, slearn: slStart, test: testSetup, stest: stSetup, abc: abcStart, song: songStart, ref})[m](arg);
 }
 function refresh() { go(mode); const d = document.querySelector('details.set'); if (d) d.open = true; }
 document.addEventListener('keydown', e => {
@@ -296,6 +297,7 @@ function home() {
     ${tile('learn', 'Learn', 'Multiple choice, then written, with hints. Weakest cards first.')}
     ${tile('test', 'Test', 'Instant feedback after every question, or a full exam.', false, 'instant')}
     ${tile('abc', 'Alphabet Drill', 'Type the Greek alphabet in order, against the clock.')}
+    ${tile('song', 'XAIPE Song', 'Sing along with the words in time to the song, one part at a time.')}
     ${tile('flash', 'Flashcards', 'Flip through the set at your own pace.')}
     ${tile('ref', 'Reference', 'Every card on one page.')}
   </div>
@@ -312,7 +314,8 @@ function home() {
     <li>Spoken Learn on <b>Symbols</b> and <b>Colors</b> until you can say each meaning without looking.</li>
     <li>Spoken Learn on <b>Greek Alphabet</b>, then the Alphabet Drill until you can type it with no mistakes.</li>
     <li>Spoken Learn on <b>Motto &amp; Mission</b>. The mission is taught a piece at a time, then as a whole.</li>
-    <li>Test with instant feedback until you score 100%, then a Spoken Test with feedback at the end.</li></ol></div>`;
+    <li>Test with instant feedback until you score 100%, then a Spoken Test with feedback at the end.</li>
+    <li>Learn <b>XAIPE</b> in the Song section, a part at a time, until you can sing it with the words hidden.</li></ol></div>`;
 }
 
 /* ---------- flashcards ---------- */

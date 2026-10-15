@@ -2,7 +2,7 @@
 
 A Quizlet-style study site for the Alpha Delta Phi symbols, colors, flower, motto, mission and the Greek alphabet.
 
-Modes: **Flashcards**, **Learn**, **Spoken Learn**, **Test**, **Spoken Test**, **Alphabet Drill**, **Reference**.
+Modes: **Flashcards**, **Learn**, **Spoken Learn**, **Test**, **Spoken Test**, **Alphabet Drill**, **XAIPE Song**, **Reference**.
 
 ## Use it online
 
@@ -52,6 +52,26 @@ only be that letter: `a` for Alpha, `ep` for Epsilon, `et` for Eta, `omi` for Om
 Full names work too, with or without spaces. Your best clean (no-mistake) time is saved. Letters you got wrong
 count as misses in the other modes, so they come up first in Learn.
 
+## XAIPE Song
+
+Learn the fraternity song a part at a time, singing along with lyrics that follow the recording
+([Spotify](https://open.spotify.com/track/0azqhNnMccu80gQ4xqRlTO), Cornell University Alumni Chorus).
+
+The lyrics come built in, split into Verse 1, Chorus, Verse 2, Chorus, Verse 3, Chorus, and timed to the recording
+(the first 35 seconds are the tune played through once, so the page counts down to the first words).
+
+1. **Sing along**: the current line lights up and a bar under it shows when the next line comes. Pick a part to loop it.
+   Switch from **Words** to **Hints** (first letters) to **Hidden** as you learn it. Hidden lines show once they've been
+   sung so you can check yourself. Mark parts learned, then use **Sing it from the start** to chain them together.
+2. **Fix timing** if it ever drifts: nudge the words earlier/later, edit the lyrics, or **Sync** a part again by tapping
+   `Space` as each line starts.
+
+The player is Spotify's embed. Log in at open.spotify.com in the same browser for the full song; otherwise Spotify
+plays a 30-second preview. Or choose **Audio file** to play your own copy, which can also be slowed to 0.75×.
+
+Lyrics and timings are saved in your browser. To put them on the site for everyone, use **Copy lyrics with timings**
+and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12.50] words of the line`.
+
 ## Learning features
 
 - **Test with instant feedback:** the Test and Spoken Test setups have a Feedback switch (instant, or at the end).
@@ -73,5 +93,6 @@ count as misses in the other modes, so they come up first in Learn.
 - `js/voice.js`: mic capture, pause detection, and the three voice engines
 - `js/whisper-worker.js`: in-browser Whisper (transformers.js) in a Web Worker
 - `js/app.js`: all study modes
+- `js/song.js`: the XAIPE Song section (lyrics, Spotify/audio playback, sync, sing-along)
 - `server.py`: static server plus `/api/transcribe` (MLX Whisper), callable from the Pages site
 - `images/`: add `star.png`, `crescent.png`, `sword-spear.png`, `monument.png`, `lily-of-the-valley.png` (see `images/README.md`)
