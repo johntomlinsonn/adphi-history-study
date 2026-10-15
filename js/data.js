@@ -35,50 +35,52 @@ const CARDS = [
 
 /* ---------- the song ----------
  text: one lyric line per line. A [Name] line or a blank line starts a new part.
- A line can start with its time in the recording, [m:ss.cc], which the Song page
- fills in when you tap along (Sync). Use "Copy lyrics" on the Song page and paste
- the result here to put the words and timings on the site for everyone.
+ A line can start with its time in the recording, [m:ss.cc]. These were placed by
+ Whisper small (forced alignment of each pair of lines) and can be redone on the Song
+ page (Sync). Use "Copy lyrics" there and paste the result here to share new timings.
+ end: when the last note finishes.
 */
 const SONG = {
  title: 'XAIPE',
  by: 'Cornell University Alumni Chorus, Douglas Jimerson',
  audio: 'audio/xaipe.mp3',
  tune: 'O Tannenbaum (O Christmas Tree)',
+ end: 139.9,                            // the last note; the recording opens with ~34 s of humming
  text: `
 [Verse 1]
-[0:34.68] Kaire Alpha Delta Phi!
-[0:39.14] Ace ai-oh-nah thallan.
-[0:43.24] Owk-sah-noi-oh doonamai,
-[0:47.36] Kath hapantah neekahn.
+[0:34.08] Kaire Alpha Delta Phi!
+[0:39.16] Ace ai-oh-nah thallan.
+[0:42.74] Owk-sah-noi-oh doonamai,
+[0:46.84] Kath hapantah neekahn.
 
 [Chorus]
-[0:51.60] Selenay tik-toh-menay,
-[0:55.98] Astron kai marmairon,
-[1:00.42] Melpsomen yoo-froh-zoo-nay,
-[1:04.74] Hoomin azmah faidron.
+[0:51.40] Selenay tik-toh-menay,
+[0:55.84] Astron kai marmairon,
+[1:00.26] Melpsomen yoo-froh-zoo-nay,
+[1:04.46] Hoomin azmah faidron.
 
 [Verse 2]
-[1:09.16] Entheday kah-lee-oh-pay,
-[1:13.52] Soon pasais moo-sah-ahn.
-[1:17.78] Nai-eh-tai en soo-nah-fay,
-[1:21.96] Haymas prah-ohs treffahn.
+[1:09.14] Entheday kah-lee-oh-pay,
+[1:13.20] Soon pasais moo-sah-ahn.
+[1:17.32] Nai-eh-tai en soo-nah-fay,
+[1:21.38] Haymas prah-ohs treffahn.
 
 [Chorus, 2nd time]
-[1:26.24] Selenay tik-toh-menay,
-[1:30.62] Astron kai marmairon,
-[1:34.94] Melpsomen yoo-froh-zoo-nay,
-[1:39.18] Hoomin azmah faidron.
+[1:26.00] Selenay tik-toh-menay,
+[1:30.44] Astron kai marmairon,
+[1:34.50] Melpsomen yoo-froh-zoo-nay,
+[1:38.98] Hoomin azmah faidron.
 
 [Verse 3]
-[1:43.60] Nah-ohs kahloo kai-gah-thoo,
-[1:48.06] Ace ai-oh-nah staysahn.
-[1:52.46] Erah-oh-men soo hiroo,
-[1:56.78] Erah-oh-men koodahn.
+[1:42.98] Nah-ohs kahloo kai-gah-thoo,
+[1:47.64] Ace ai-oh-nah staysahn.
+[1:52.10] Erah-oh-men soo hiroo,
+[1:56.40] Erah-oh-men koodahn.
 
 [Chorus, last time]
-[2:01.26] Selenay tik-toh-menay,
-[2:05.64] Astron kai marmairon,
-[2:10.00] Melpsomen yoo-froh-zoo-nay,
-[2:14.48] Hoomin azmah faidron.
+[2:01.18] Selenay tik-toh-menay,
+[2:05.24] Astron kai marmairon,
+[2:09.52] Melpsomen yoo-froh-zoo-nay,
+[2:14.04] Hoomin azmah faidron.
 `,
 };
