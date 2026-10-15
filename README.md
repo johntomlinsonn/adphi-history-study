@@ -55,7 +55,7 @@ count as misses in the other modes, so they come up first in Learn.
 ## XAIPE Song
 
 Learn the fraternity song a part at a time, singing along with lyrics that follow the recording
-([Spotify](https://open.spotify.com/track/0azqhNnMccu80gQ4xqRlTO), Cornell University Alumni Chorus).
+(Cornell University Alumni Chorus, hosted with the site as `audio/xaipe.mp3`).
 
 The lyrics come built in, split into Verse 1, Chorus, Verse 2, Chorus, Verse 3, Chorus, and timed to the recording
 (the first 35 seconds are the tune played through once, so the page counts down to the first words).
@@ -66,8 +66,7 @@ The lyrics come built in, split into Verse 1, Chorus, Verse 2, Chorus, Verse 3, 
 2. **Fix timing** if it ever drifts: nudge the words earlier/later, edit the lyrics, or **Sync** a part again by tapping
    `Space` as each line starts.
 
-The player is Spotify's embed. Log in at open.spotify.com in the same browser for the full song; otherwise Spotify
-plays a 30-second preview. Or choose **Audio file** to play your own copy, which can also be slowed to 0.75×.
+The song plays right on the page, with a seek bar and speeds of 0.75×, 0.9× and 1× for learning the words.
 
 Lyrics and timings are saved in your browser. To put them on the site for everyone, use **Copy lyrics with timings**
 and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12.50] words of the line`.
@@ -93,6 +92,7 @@ and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12
 - `js/voice.js`: mic capture, pause detection, and the three voice engines
 - `js/whisper-worker.js`: in-browser Whisper (transformers.js) in a Web Worker
 - `js/app.js`: all study modes
-- `js/song.js`: the XAIPE Song section (lyrics, Spotify/audio playback, sync, sing-along)
+- `js/song.js`: the XAIPE Song section (lyrics, playback, sync, sing-along)
+- `audio/xaipe.mp3`: the recording
 - `server.py`: static server plus `/api/transcribe` (MLX Whisper), callable from the Pages site
 - `images/`: add `star.png`, `crescent.png`, `sword-spear.png`, `monument.png`, `lily-of-the-valley.png` (see `images/README.md`)

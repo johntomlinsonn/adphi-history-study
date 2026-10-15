@@ -375,3 +375,4 @@ details.more[open] summary::before{transform:rotate(90deg) translateX(2px)}
 }
 .skip{margin:14px 10px 0;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
 .skip::before,.skip::after{content:"";flex:1;border-top:1.5px dashed var(--line)}
+.scrub{width:100%;accent-color:var(--green);margin:0;height:28px}
