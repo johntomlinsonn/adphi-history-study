@@ -3,7 +3,7 @@
  sing along with the words, then with first letters only, then from memory, and
  chain the parts together as you go. Line times come from tapping along once while
  the song plays (Sync). Your edits and timings are saved in this browser.
- Playback is the Spotify embed (its IFrame API reports the position) or an audio file.
+ The recording is hosted with the site (audio/xaipe.mp3).
 */
 const TS = /^\[(\d+):(\d{1,2}(?:\.\d+)?)\]\s*/;
 const LEAD = 2;                                    // seconds of run-up before a part starts
@@ -36,101 +36,51 @@ function songSave() { store.set('songText', songText(SG.parts)); songLoad(); }
 const songSynced = () => SG.lines.length > 0 && SG.lines.every(l => l.t != null);
 
 /* ---------- player ---------- */
-const P = {ctl: null, audio: null, file: '', pos: 0, at: 0, paused: true, dur: 0, started: false, hold: 0, nudge: 0};
-const useFile = () => S.songSrc === 'file' && P.audio;
-function pNow() {
-  if (useFile()) return P.audio.currentTime;
-  return P.paused ? P.pos : Math.min(P.dur || 1e9, P.pos + (performance.now() - P.at) / 1000);
+const P = {audio: null, hold: 0, pending: null};
+function pAudio() {
+  if (!P.audio) {
+    const a = P.audio = new Audio();
+    a.preload = 'auto'; a.preservesPitch = true;
+    a.addEventListener('error', () => songMsg(`<span style="color:var(--bad)">The song didn't load. Check your connection and reload the page.</span>`));
+    // A seek made before the song has loaded happens once it has
+    a.addEventListener('loadedmetadata', () => { if (P.pending) { a.currentTime = P.pending.s; if (P.pending.play) pPlay(); P.pending = null; } });
+    // Play it from memory: browsers only seek in a streamed file if the server supports range requests (server.py doesn't)
+    fetch(SONG.audio).then(r => { if (!r.ok) throw r.status; return r.blob(); })
+      .then(b => { a.src = URL.createObjectURL(b); }, () => { a.src = SONG.audio; });
+  }
+  P.audio.playbackRate = +S.songRate || 1;
+  return P.audio;
 }
-const pPaused = () => useFile() ? P.audio.paused : P.paused;
-const pDur = () => useFile() ? P.audio.duration || 0 : P.dur;
-function pPlay() {
-  if (useFile()) return void P.audio.play();
-  if (!P.ctl) return;
-  P.started ? P.ctl.resume() : P.ctl.play();
-  P.started = true;
-  // Some browsers only let the Spotify player start from a tap inside it
-  clearTimeout(P.nudge);
-  P.nudge = setTimeout(() => { if (P.paused) songMsg('If nothing plays, press play on the Spotify player once. After that these buttons work.'); }, 1800);
-}
-function pPause() { useFile() ? P.audio.pause() : P.ctl?.pause(); }
+const pNow = () => P.audio?.currentTime || 0;
+const pPaused = () => !P.audio || P.audio.paused;
+const pDur = () => P.audio?.duration || 0;
+function pPlay() { const a = pAudio(); if (a.src) a.play().catch(() => {}); else P.pending = {s: 0, play: true}; }
+function pPause() { P.audio?.pause(); }
 function pToggle() { pPaused() ? pPlay() : pPause(); }
 function pSeek(s, play) {
-  s = Math.max(0, s);
   P.hold = performance.now() + 900;
-  if (useFile()) { P.audio.currentTime = s; if (play) P.audio.play(); return; }
-  if (!P.ctl) return;
-  P.pos = s; P.at = performance.now();
-  if (!P.started) { pPlay(); setTimeout(() => P.ctl?.seek(s), 700); }   // the embed seeks only once it has started
-  else { P.ctl.seek(s); if (play) P.ctl.resume(); }
+  const au = pAudio();
+  if (!au.src || au.readyState < 1) return void (P.pending = {s: Math.max(0, s), play});
+  au.currentTime = Math.max(0, s);
+  if (play) pPlay();
 }
-
-let spotifyAPI, spotifyWait = [];
-window.onSpotifyIframeApiReady = api => { spotifyAPI = api; spotifyWait.splice(0).forEach(f => f(api)); };
-function loadSpotify() {
-  return new Promise((res, rej) => {
-    if (spotifyAPI) return res(spotifyAPI);
-    spotifyWait.push(res);
-    if (document.getElementById('spotify-api')) return;
-    const s = document.createElement('script');
-    s.id = 'spotify-api'; s.src = 'https://open.spotify.com/embed/iframe-api/v1'; s.async = true;
-    s.onerror = () => { s.remove(); spotifyWait = []; rej(); };
-    document.head.appendChild(s);
-  });
-}
-function mountSpotify() {
-  const host = $('#sp');
-  if (!host) return;
-  loadSpotify().then(api => {
-    if (!document.body.contains(host)) return;
-    api.createController(host, {uri: 'spotify:track:' + SONG.spotify, width: '100%', height: 80}, ctl => {
-      P.ctl = ctl; P.started = false; P.paused = true; P.pos = 0;
-      ctl.addListener('playback_update', e => {
-        const d = e.data;
-        P.pos = d.position / 1000; P.at = performance.now(); P.dur = d.duration / 1000;
-        P.paused = d.isPaused || d.isBuffering;
-        if (!d.isPaused) { P.started = true; clearTimeout(P.nudge); }
-      });
-    });
-  }).catch(() => { host.innerHTML = `<p class="muted">The Spotify player didn't load. Check your connection, or use an audio file of the song instead.</p>`; });
-}
-function songLeave() {
-  cancelAnimationFrame(SG.raf);
-  clearTimeout(P.nudge);
-  try { P.ctl?.destroy(); } catch {}
-  P.ctl = null; P.paused = true; P.started = false; P.pos = 0;
-  P.audio?.pause();
-}
-function songSrc(k) { pPause(); S.songSrc = k; save(); songLeave(); songStart(); }
-function songFile(input) {
-  const f = input.files[0];
-  if (!f) return;
-  if (!P.audio) { P.audio = new Audio(); P.audio.preservesPitch = true; }
-  if (P.audio.src) URL.revokeObjectURL(P.audio.src);
-  P.audio.src = URL.createObjectURL(f);
-  P.audio.playbackRate = +S.songRate || 1;
-  P.file = f.name;
-  songStart();
-}
-function songRate(r) { S.songRate = r; save(); if (P.audio) P.audio.playbackRate = +r; }
+function songLeave() { cancelAnimationFrame(SG.raf); P.audio?.pause(); }
+function songRate(r) { S.songRate = r; save(); pAudio(); }
 
 /* ---------- page ---------- */
 function songStart() {
   songLoad();
   if (!SG.lines.length) SG.view = 'edit';
   else if (SG.view === 'edit' || SG.view === 'sync') SG.view = 'sing';
-  const file = S.songSrc === 'file';
+  pAudio();
   $('#app').innerHTML = `<div class="panel song-head">
     <div><h2>${esc(SONG.title)}</h2><p class="muted" style="margin:0">${esc(SONG.by)}${SONG.tune ? ` &middot; to the tune of ${esc(SONG.tune)}` : ''}</p></div>
-    <div class="seg">${[['spotify', 'Spotify'], ['file', 'Audio file']].map(([k, l]) => `<button class="${(S.songSrc || 'spotify') === k ? 'on' : ''}" onclick="songSrc('${k}')">${l}</button>`).join('')}</div>
-    ${file ? `<div class="row"><label class="btn alt">Choose the song file<input type="file" accept="audio/*" hidden onchange="songFile(this)"></label>
-        <span class="muted">${P.file ? esc(P.file) : 'An MP3 or M4A of the recording. It stays on this device.'}</span></div>
-        <div class="row"><span class="muted">Speed</span>${['0.75', '0.9', '1'].map(r => `<button class="chip ${(S.songRate || '1') === r ? 'on' : ''}" onclick="songRate('${r}');this.parentNode.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on',b===this))">${r}&times;</button>`).join('')}</div>`
-      : `<div id="sp" class="sp"><p class="muted">Loading the Spotify player&hellip;</p></div>
-        <p class="muted" id="spnote" style="margin:0">Log in at open.spotify.com in this browser to hear the full song. Without an account, Spotify only plays a 30-second preview.</p>`}
+    <input type="range" id="scrub" class="scrub" min="0" max="${Math.round(pDur()) || 145}" step="0.1" value="${pNow()}" aria-label="Position in the song"
+      oninput="SG.scrubbing=true;pSeek(+this.value, !pPaused())" onchange="SG.scrubbing=false">
+    <div class="row"><span class="muted">Speed</span>${['0.75', '0.9', '1'].map(r => `<button class="chip ${(S.songRate || '1') === r ? 'on' : ''}" onclick="songRate('${r}');this.parentNode.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on',b===this))">${r}&times;</button>`).join('')}
+      <span class="muted">Slow it down while you learn the words.</span></div>
     <div class="micstat" id="songmsg"></div></div>
   <div id="songbody"></div>`;
-  if (!file) mountSpotify();
   songView(SG.view);
   cancelAnimationFrame(SG.raf);
   SG.raf = requestAnimationFrame(songTick);
@@ -285,7 +235,8 @@ function songTick() {
   if (btn && btn.dataset.on !== String(playing)) { btn.dataset.on = playing; btn.innerHTML = playing ? PAUSE : PLAY; }
   const st = $('#stime');
   if (st) st.textContent = fmtClock(raw) + (pDur() ? ' / ' + fmtClock(pDur()) : '');
-  if (!useFile() && P.dur && P.dur < 35 && $('#spnote')) $('#spnote').innerHTML = '<b>Spotify is playing a 30-second preview.</b> Log in at open.spotify.com in this browser, then reload this page, to hear the whole song.';
+  const sc = $('#scrub');
+  if (sc && !SG.scrubbing) { if (pDur() && +sc.max !== Math.round(pDur())) sc.max = Math.round(pDur()); sc.value = raw; }
   if (SG.view === 'sync') return syncTick(raw, playing);
   if (SG.view !== 'sing') return;
   const t = raw + (S.songOffset || 0);

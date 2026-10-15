@@ -42,7 +42,7 @@ const CARDS = [
 const SONG = {
  title: 'XAIPE',
  by: 'Cornell University Alumni Chorus, Douglas Jimerson',
- spotify: '0azqhNnMccu80gQ4xqRlTO',
+ audio: 'audio/xaipe.mp3',
  tune: 'O Tannenbaum (O Christmas Tree)',
  text: `
 [Verse 1]
