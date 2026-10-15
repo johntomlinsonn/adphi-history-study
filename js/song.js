@@ -144,15 +144,26 @@ const PLAY = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7
 const PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>';
 
 /* ---------- sing along ---------- */
-function songRange() {
-  const n = SG.parts.length, a = S.songA ?? -1;
-  if (a < 0 || a >= n) return null;
-  const b = Math.min(Math.max(a, S.songB ?? a), n - 1);
-  const next = SG.parts[b + 1], last = SG.parts[b].lines.at(-1);
-  const end = next ? next.lines[0].t : last.t == null ? null : Math.min(pDur() || 1e9, last.t + 8);
-  return {a, b, start: SG.parts[a].lines[0].t, end};
+// The parts chosen to practice (any mix, in song order), or null for the whole song.
+// Parts next to each other play straight through; playback skips over the ones not chosen.
+const songSel = () => (S.songSel || []).filter(pi => pi < SG.parts.length).sort((a, b) => a - b);
+function partEnd(pi) {
+  const next = SG.parts[pi + 1], last = SG.parts[pi].lines.at(-1);
+  return next ? next.lines[0].t : last.t == null ? null : Math.min(pDur() || 1e9, last.t + 8);
 }
-const rangeName = r => !r ? 'Whole song' : r.a === r.b ? SG.parts[r.a].name : `${SG.parts[r.a].name} → ${SG.parts[r.b].name}`;
+function songRange() {
+  const sel = songSel();
+  if (!sel.length) return null;
+  const runs = [];
+  sel.forEach(pi => {
+    const r = runs.at(-1);
+    if (r && r.b === pi - 1) { r.b = pi; r.end = partEnd(pi); }
+    else runs.push({a: pi, b: pi, start: SG.parts[pi].lines[0].t, end: partEnd(pi)});
+  });
+  return {sel, runs, has: pi => sel.includes(pi), timed: runs.every(r => r.start != null && r.end != null)};
+}
+const rangeName = r => !r ? 'Whole song' : r.sel.length === 1 ? SG.parts[r.sel[0]].name
+  : r.sel.length <= 3 ? r.sel.map(pi => SG.parts[pi].name).join(' + ') : `${r.sel.length} parts`;
 const wordsHTML = s => s ? s.split(/\s+/).map(w => {
   const m = w.match(/^([^\p{L}\p{N}]*[\p{L}\p{N}]?)(.*)$/u);
   return `<span class="w">${esc(m[1])}<span class="r">${esc(m[2])}</span></span>`;
@@ -160,7 +171,7 @@ const wordsHTML = s => s ? s.split(/\s+/).map(w => {
 
 function singRender() {
   const r = songRange(), done = store.get('songDone', {}), synced = songSynced();
-  const parts = SG.parts.map((p, pi) => [p, pi]).filter(([, pi]) => !r || (pi >= r.a && pi <= r.b));
+  const parts = SG.parts.map((p, pi) => [p, pi]).filter(([, pi]) => !r || r.has(pi));
   const nDone = SG.parts.filter((p, pi) => done[pi]).length;
   const words = S.songWords || 'show';
   $('#songbody').innerHTML = `
@@ -173,7 +184,7 @@ function singRender() {
     </div>
     <div class="chips">
       <button class="chip ${!r ? 'on' : ''}" onclick="songPick(-1)">Whole song</button>
-      ${SG.parts.map((p, pi) => `<button class="chip ${r && r.a === pi && r.b === pi ? 'on' : ''} ${done[pi] ? 'done' : ''}" onclick="songPick(${pi})">${pi + 1}. ${esc(p.name)}</button>`).join('')}
+      ${SG.parts.map((p, pi) => `<button class="chip ${r?.has(pi) ? 'on' : ''} ${done[pi] ? 'done' : ''}" onclick="songToggle(${pi})" aria-pressed="${!!r?.has(pi)}">${pi + 1}. ${esc(p.name)}</button>`).join('')}
     </div>
   </div>
   ${!synced ? `<div class="panel song-note"><b>The words aren't timed to the music yet.</b> Tap along once and they'll follow the song from then on.
@@ -181,25 +192,22 @@ function singRender() {
   <div class="panel lyrics m-${words} ${synced ? '' : 'unsynced'}" id="lyrics">
     <div class="row lyr-top"><b>${esc(rangeName(r))}</b><span class="muted" id="songcue"></span><span class="spacer"></span>
       ${r && synced ? `<label class="toggle"><input type="checkbox" ${S.songLoop !== false ? 'checked' : ''} onchange="S.songLoop=this.checked;save()"> Loop</label>` : ''}</div>
-    ${parts.map(([p, pi]) => `<h4>${pi + 1}. ${esc(p.name)}${done[pi] ? ' <span class="badge ok">Learned</span>' : ''}</h4>
+    ${parts.map(([p, pi], j) => `${j && parts[j - 1][1] !== pi - 1 ? '<div class="skip">skips ahead</div>' : ''}<h4>${pi + 1}. ${esc(p.name)}${done[pi] ? ' <span class="badge ok">Learned</span>' : ''}</h4>
       ${p.lines.map(l => `<div class="ln" data-k="${SG.lines.indexOf(l)}" onclick="songLine(${SG.lines.indexOf(l)})">${wordsHTML(l.text)}</div>`).join('')}`).join('')}
-    ${r ? `<div class="row lyr-acts">
-      ${r.a === r.b ? `<button class="btn ${done[r.a] ? 'alt' : ''}" onclick="songDone(${r.a})">${done[r.a] ? 'Not learned yet' : 'I know this part'}</button>` : ''}
-      ${r.a > 0 ? `<button class="btn alt" onclick="songChain()">Sing it from the start</button>` : ''}
-      ${r.b < SG.parts.length - 1 ? `<button class="btn alt" onclick="songPick(${r.b + 1})">Next part</button>` : ''}</div>` : ''}
+    ${r ? songActs(r, done) : ''}
   </div>
   <div class="panel"><h3>How to learn it</h3><ol class="plan">
-    <li>Pick <b>Part 1</b>. Sing along a few loops with the <b>Words</b> showing.</li>
+    <li>Pick <b>Part 1</b>. Sing along a few loops with the <b>Words</b> showing. Tap more parts to practice several at once; tap a part again to drop it.</li>
     <li>Switch to <b>Hints</b> (first letters only), then <b>Hidden</b>. Lines show once they've been sung so you can check yourself.</li>
     <li>When you can sing it hidden, tap <b>I know this part</b> and go to the next one.</li>
     <li>After each new part, tap <b>Sing it from the start</b> to join it to the parts before. Finish with the whole song, hidden.</li></ol>
-    <p class="muted">${nDone} of ${SG.parts.length} parts learned. ${keyHint('Keys: <kbd>Space</kbd> play/pause, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> previous/next line, <kbd>1</kbd>&ndash;<kbd>9</kbd> parts, <kbd>0</kbd> whole song, <kbd>H</kbd> words/hints/hidden.', 'Tap a line to jump to it.')}</p>
+    <p class="muted">${nDone} of ${SG.parts.length} parts learned. ${keyHint('Keys: <kbd>Space</kbd> play/pause, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> previous/next line, <kbd>1</kbd>&ndash;<kbd>9</kbd> add/drop a part, <kbd>0</kbd> whole song, <kbd>H</kbd> words/hints/hidden.', 'Tap a line to jump to it.')}</p>
     <details class="more"><summary>Lyrics and timing</summary><div class="more-body">
       ${synced ? `<div class="row"><span class="muted">Words come in</span>
         <button class="btn alt" onclick="songShift(-0.1)">Earlier</button><button class="btn alt" onclick="songShift(0.1)">Later</button>
         <span class="muted" id="songoff">${songOff()}</span></div>` : ''}
       <div class="row"><button class="btn alt" onclick="songView('edit')">Edit the lyrics</button>
-        <button class="btn alt" onclick="songView('sync')">${synced ? 'Re-sync' : 'Sync'} ${r ? 'this part' : 'the lyrics'}</button>
+        <button class="btn alt" onclick="songView('sync')">${synced ? 'Re-sync' : 'Sync'} ${!r ? 'the lyrics' : r.sel.length === 1 ? 'this part' : 'these parts'}</button>
         <button class="btn alt" onclick="songCopy()">Copy lyrics with timings</button></div>
       ${store.get('songText', null) != null && SONG.text ? `<button class="btn ghost" onclick="if(confirm('Replace your lyrics and timings with the site version?')){store.set('songText',null);songStart()}">Use the site version</button>` : ''}
     </div></details></div>`;
@@ -212,14 +220,36 @@ function songWords(k) {
   $('#lyrics').classList.remove('m-show', 'm-hint', 'm-hide'); $('#lyrics').classList.add('m-' + k);
   document.querySelectorAll('.words button').forEach((b, i) => b.classList.toggle('on', ['show', 'hint', 'hide'][i] === k));
 }
-function songPick(pi) {
-  S.songA = pi < 0 ? null : pi; S.songB = S.songA; save();
+function songActs(r, done) {
+  const one = r.sel.length === 1 ? r.sel[0] : null, hi = r.sel.at(-1), last = SG.parts.length - 1;
+  const fromStart = r.sel.length === hi + 1;
+  return `<div class="row lyr-acts">
+    ${one != null ? `<button class="btn ${done[one] ? 'alt' : ''}" onclick="songDone(${one})">${done[one] ? 'Not learned yet' : 'I know this part'}</button>` : ''}
+    ${!fromStart ? `<button class="btn alt" onclick="songSet([...Array(${hi + 1}).keys()])">Sing it from the start</button>` : ''}
+    ${hi < last ? one != null ? `<button class="btn alt" onclick="songSet([${hi + 1}])">Next part</button>`
+      : `<button class="btn alt" onclick="songSet([...songSel(), ${hi + 1}])">Add the next part</button>` : ''}</div>`;
+}
+// Choose these parts and play from the first of them
+function songSet(sel) {
+  S.songSel = [...new Set(sel)].sort((a, b) => a - b); save();
   singRender();
   const r = songRange();
-  if (songSynced()) pSeek(r ? r.start - LEAD : 0, true);
+  if (songSynced()) pSeek(r ? r.runs[0].start - LEAD : 0, true);
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
-function songChain() { S.songA = 0; save(); singRender(); const r = songRange(); if (songSynced()) pSeek(r.start - LEAD, true); }
+function songPick(pi) { songSet(pi < 0 ? [] : [pi]); }
+// Tapping a part adds it to the parts being practiced, or drops it. Keep playing where you are when you can.
+function songToggle(pi) {
+  const sel = songSel(), on = sel.includes(pi);
+  S.songSel = on ? sel.filter(x => x !== pi) : [...sel, pi].sort((a, b) => a - b); save();
+  const t = pNow() + (S.songOffset || 0), r = songRange(), playing = !pPaused();
+  singRender();
+  if (!songSynced()) return;
+  const inside = r && r.runs.some(x => t >= x.start - LEAD - .5 && t <= x.end);
+  if (!r) return;
+  if (!playing) pSeek(r.runs[0].start - LEAD, false);
+  else if (!inside) pSeek((r.runs.find(x => x.start > t) || r.runs[0]).start - LEAD, true);
+}
 function songDone(pi) {
   const d = store.get('songDone', {});
   d[pi] ? delete d[pi] : d[pi] = true;
@@ -260,9 +290,12 @@ function songTick() {
   if (SG.view !== 'sing') return;
   const t = raw + (S.songOffset || 0);
   const r = songRange();
-  // At the end of the chosen part: go round again, or stop
-  if (r && r.end != null && playing && performance.now() > P.hold && t > r.end + .2) {
-    if (S.songLoop !== false) pSeek(r.start - LEAD, true); else { pPause(); P.hold = performance.now() + 900; }
+  // Outside the chosen parts: skip ahead to the next one, or at the end go round again (or stop)
+  if (r && r.timed && playing && performance.now() > P.hold && !r.runs.some(x => t >= x.start - LEAD - .5 && t <= x.end + .2)) {
+    const next = r.runs.find(x => x.start > t);
+    if (next) pSeek(next.start - (t > r.runs[0].start ? 1 : LEAD), true);
+    else if (S.songLoop !== false) pSeek(r.runs[0].start - LEAD, true);
+    else { pPause(); P.hold = performance.now() + 900; }
   }
   let k = -1;
   SG.lines.forEach((l, j) => { if (l.t != null && l.t <= t) k = j; });
@@ -289,7 +322,7 @@ function songTick() {
 const REACT = .15;                                 // taps land a little after the line starts
 function syncRender() {
   const r = songRange();
-  const idx = SG.lines.filter(l => !r || (l.p >= r.a && l.p <= r.b)).map(l => SG.lines.indexOf(l));
+  const idx = SG.lines.filter(l => !r || r.has(l.p)).map(l => SG.lines.indexOf(l));
   // Start a little before the first line if it's timed already, else just after the line before it
   const first = SG.lines[idx[0]], before = SG.lines.slice(0, idx[0]).reverse().find(l => l.t != null);
   SG.sync = {idx, i: 0, from: first.t != null ? first.t - 3 : before ? before.t + .5 : 0, old: idx.map(k => SG.lines[k].t)};
@@ -374,7 +407,7 @@ function editSave() {
   if (!parts.length) return songMsg('<span style="color:var(--bad)">Paste the lyrics first.</span>');
   store.set('songText', songText(parts));
   songLoad();
-  if ((S.songA ?? -1) >= SG.parts.length) S.songA = S.songB = null;
+  S.songSel = songSel();
   save();
   songMsg('');
   songView('sing');
@@ -394,7 +427,7 @@ function songKey(k) {
   else if (k === 'arrowright') songStep(1);
   else if (k === 'h') songWords({show: 'hint', hint: 'hide', hide: 'show'}[S.songWords || 'show']);
   else if (k === '0') songPick(-1);
-  else if (/^[1-9]$/.test(k) && +k <= SG.parts.length) songPick(+k - 1);
+  else if (/^[1-9]$/.test(k) && +k <= SG.parts.length) songToggle(+k - 1);
   else return;
   return true;
 }
