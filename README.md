@@ -1,8 +1,8 @@
 # ADPhi Study
 
-A Quizlet-style study site for the Alpha Delta Phi symbols, colors, flower, motto, mission and the Greek alphabet.
+A Quizlet-style study site for the Alpha Delta Phi symbols, colors, flower, motto, mission, the Greek alphabet and our history.
 
-Modes: **Flashcards**, **Learn**, **Spoken Learn**, **Test**, **Spoken Test**, **Alphabet Drill**, **XAIPE Song**, **Reference**.
+Modes: **Flashcards**, **Learn**, **Spoken Learn**, **Test**, **Spoken Test**, **Alphabet Drill**, **XAIPE Song**, **Reference**, plus three history modes: **Timeline**, **Sort** and **List Recall**.
 
 ## Use it online
 
@@ -72,6 +72,24 @@ The song plays right on the page, with a seek bar and speeds of 0.75×, 0.9× an
 Lyrics and timings are saved in your browser. To put them on the site for everyone, use **Copy lyrics with timings**
 and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12.50] words of the line`.
 
+## History
+
+Three topics (**Greek Life History**, **ADPhi Founding**, **Illinois Chapter**, about 70 cards) come from the
+chapter history presentation. They work in every mode above (Flashcards, Learn, Spoken Learn, Test, Spoken Test).
+Three modes fit this kind of material better, under the **History** tab:
+
+- **Timeline**: a handful of events are shuffled; tap them in the order they happened, then check. Dates appear
+  after checking, and events you misplace come back more often. Filter by Greek life, ADPhi or Illinois.
+- **Sort**: drop each name in its group (fraternity into Union / Miami / Lexington Triad, fraternity to founding school,
+  campus to first or second, years to chapter house address, name to founders / refounders / presidents).
+  A wrong group shakes and counts as a miss. Keys `1`-`5` drop the highlighted item.
+- **List Recall**: type every item of a list in any order (the 5 founders, 6 founding fathers, presidents, house addresses,
+  the 12 campuses where we were first). Answers use the same forgiving grading as the other modes, so a last name
+  or a short name ("NYU", "Eells") works. `Tab` shows first-letter hints, and your best clean time is saved.
+
+The data is in `js/data.js` (`CARDS` via `H(...)`, `TIMELINE`, `SORTS`, `LISTS`); the modes are in `js/history.js`.
+Topics added after your last visit are switched on automatically.
+
 ## Learning features
 
 - **Test with instant feedback:** the Test and Spoken Test setups have a Feedback switch (instant, or at the end).
@@ -94,6 +112,7 @@ and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12
 - `js/whisper-worker.js`: in-browser Whisper (transformers.js) in a Web Worker
 - `js/app.js`: all study modes
 - `js/song.js`: the XAIPE Song section (lyrics, playback, sync, sing-along)
+- `js/history.js`: Timeline, Sort and List Recall
 - `audio/xaipe.mp3`: the recording
 - `server.py`: static server plus `/api/transcribe` (MLX Whisper), callable from the Pages site
 - `images/`: add `star.png`, `crescent.png`, `sword-spear.png`, `monument.png`, `lily-of-the-valley.png` (see `images/README.md`)
