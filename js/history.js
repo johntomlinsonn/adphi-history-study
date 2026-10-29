@@ -9,9 +9,9 @@
 const HIST_MODES = ['tl', 'sort', 'recall'];
 function histSwitch() {
   const t = {tl: ['Timeline', ICON.clock], sort: ['Sort', ICON.sort], recall: ['Recall', ICON.recall]};
-  return `<div class="via three" role="tablist">${HIST_MODES.map(k => `<button class="${mode === k ? 'on' : ''}" onclick="go('${k}')">${t[k][1]}${t[k][0]}</button>`).join('')}</div>`;
+  return `<div class="via three">${HIST_MODES.map(k => `<button class="${mode === k ? 'on' : ''}" aria-pressed="${mode === k}" onclick="go('${k}')">${t[k][1]}${t[k][0]}</button>`).join('')}</div>`;
 }
-const histChips = (items, on, fn) => `<div class="chips hchips">${items.map(([k, l]) => `<button class="chip ${on(k) ? 'on' : ''}" onclick="${fn}('${k}')">${esc(l)}</button>`).join('')}</div>`;
+const histChips = (items, on, fn) => `<div class="chips hchips">${items.map(([k, l]) => `<button class="chip ${on(k) ? 'on' : ''}" aria-pressed="${!!on(k)}" onclick="${fn}('${k}')">${esc(l)}</button>`).join('')}</div>`;
 const shakeEl = el => { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); };
 
 /* ---------- Timeline ----------
@@ -162,7 +162,7 @@ function rcRender() {
   <div class="top"><span id="rcpos">${found} / ${RC.items.length}</span><div class="bar"><i id="rcbar" style="width:${found / RC.items.length * 100}%"></i></div><span id="rctime">${RC.t0 ? fmtTime(performance.now() - RC.t0) : '0.0s'}</span></div>
   <div class="card rc-card"><div class="tag">List recall${best ? ` &middot; best ${fmtTime(best)}` : ''}</div><div class="so-ask">${esc(d.ask)}</div>
     ${RC.done ? '' : `<input type="text" id="rcin" class="abc-in rc-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Type one, press Enter&hellip;">
-      <div class="micstat" id="rcmsg"></div>`}
+      <div class="micstat" id="rcmsg" role="status" aria-live="polite"></div>`}
     <div class="rc-grid ${RC.items.some(it => it.clue) ? 'clued' : ''}">${RC.items.map((it, i) => `<div class="rc-slot ${RC.got[i] ? 'got' : RC.revealed ? 'rev' : ''}"><span class="n">${i + 1}</span>
       <span class="rc-body">${it.clue ? `<small>${esc(it.clue)}</small>` : ''}<b>${RC.got[i] || RC.revealed ? esc(it.a) : RC.hints ? `<span class="rc-hint">${esc(Grade.hint(it.a, 1))}</span>` : '<span class="rc-q">?</span>'}</b></span></div>`).join('')}</div>
     ${RC.done ? rcDoneHTML() : `<div class="row" style="justify-content:center;margin-top:12px"><button class="btn alt" onclick="rcHint()">${RC.hints ? 'Hide hints' : 'Hint'} <kbd>Tab</kbd></button><button class="btn ghost" onclick="rcReveal()">Show the rest</button></div>`}

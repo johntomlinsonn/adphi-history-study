@@ -433,3 +433,23 @@ details.more[open] summary::before{transform:rotate(90deg) translateX(2px)}
   .so-bucket{min-height:70px}
   .tl-ev{font-size:.95rem}
 }
+
+/* ---------- usability and accessibility ---------- */
+:focus-visible{outline:3px solid var(--green);outline-offset:2px}
+header :focus-visible,.tabbar :focus-visible{outline-color:var(--gold)}
+.tabbar :focus-visible{outline-color:var(--green)}
+.so-item.sel:focus-visible,.chip.on:focus-visible,.btn:focus-visible{outline-color:var(--gold);box-shadow:0 0 0 2px var(--green)}
+h3.sec{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:18px 2px 8px;font-size:1.1rem}
+h3.sec small{font:400 .85rem var(--sans);color:var(--muted)}
+h3.sec + .modes{margin-bottom:6px}
+.foot{max-width:1040px;margin:0 auto;padding:4px 16px 28px;display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center}
+.foot button{background:none;border:0;color:var(--muted);font-weight:600;font-size:.85rem;text-decoration:underline;cursor:pointer;padding:8px 4px}
+.foot button:hover{color:var(--green)}
+@media (max-width:720px){.foot{padding-bottom:calc(88px + env(safe-area-inset-bottom))}main{padding-bottom:12px !important}}
+/* comfortable touch targets (44px) */
+.touch .chip,.touch .seg button,.touch .via button,.touch details.set summary,.touch .btn,.touch .so-item,.touch .tl-ev.pile,.touch .foot button{min-height:44px}
+.touch .chip{padding:8px 14px}
+.touch .tl-size .chip,.touch .hchips .chip{min-width:44px}
+.touch details.set summary{align-items:center}
+.touch .brand{min-height:44px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}}

@@ -87,6 +87,15 @@ and the houses we have lived in. It has three modes:
 The data is in `js/data.js` (`CARDS` via `H(...)`, `TIMELINE`, `SORTS`, `LISTS`); the modes are in `js/history.js`.
 Topics added after your last visit are switched on automatically.
 
+## Usability and accessibility
+
+- Home groups the modes by what you are doing: **Learn it**, **Prove it**, **Our history**, **Drills and songs**.
+- Every section can be reached from the top bar (wide screens), the bottom tab bar (phones) and the home tiles. A footer
+  on every page links to Overview, Reference, Spoken Learn and Spoken Test, which have no phone tab of their own.
+- The browser's back and forward buttons move between sections, and the tab title names the section.
+- Touch screens get 44px tap targets. Keyboard focus is always visible. Toggle buttons announce on/off, the current
+  section is marked, answer feedback is read out by screen readers, and animation is reduced if the device asks for it.
+
 ## Learning features
 
 - **Test with instant feedback:** the Test and Spoken Test setups have a Feedback switch (instant, or at the end).

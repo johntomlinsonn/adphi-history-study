@@ -111,7 +111,7 @@ function segs(sc) { return `<div class="bar segs">${sc.items.map(c => `<i class=
 function filterUI(open) {
   const n = pool().length;
   return `<details class="set" ${open ? 'open' : ''}><summary>Study set &middot; ${n} card${n === 1 ? '' : 's'}</summary><div class="filter">
-    <div><div class="flabel">Topics</div><div class="chips">${CATS.map(c => `<button class="chip ${S.cats.includes(c) ? 'on' : ''}" onclick="togCat('${c}')">${esc(c)}</button>`).join('')}</div></div>
+    <div><div class="flabel">Topics</div><div class="chips">${CATS.map(c => `<button class="chip ${S.cats.includes(c) ? 'on' : ''}" aria-pressed="${S.cats.includes(c)}" onclick="togCat('${c}')">${esc(c)}</button>`).join('')}</div></div>
   </div></details>`;
 }
 function togCat(c) { S.cats = S.cats.includes(c) ? S.cats.filter(x => x !== c) : [...S.cats, c]; save(); refresh(); }
@@ -158,14 +158,14 @@ const VOICE_MODES = ['slearn', 'stest'];
 const TABS = [['home', 'Home', 'home'], ['flash', 'Cards', 'cards'], ['learn', 'Learn', 'learn', ['learn', 'slearn']], ['test', 'Test', 'test', ['test', 'stest']], ['abc', 'Alphabet', 'abc'], ['song', 'Song', 'music'], ['hist', 'History', 'clock', HIST_MODES]];
 const TOUCH = matchMedia('(hover: none) and (pointer: coarse)').matches;
 document.documentElement.classList.toggle('touch', TOUCH);
-let mode = 'home';
+let mode = 'home', booted = false;
 const KEYS = {song: songKey, tl: tlKeyDown, sort: soKeyDown, recall: rcKeyDown};
 function nav() {
-  $('#nav').innerHTML = MODES.slice(1).filter(m => m[3] !== 'hist').map(([k, l, ic]) => `<button class="${mode === k ? 'on' : ''}" onclick="go('${k}')">${ic || ''}${l}</button>`).join('')
+  $('#nav').innerHTML = `<button class="${mode === 'home' ? 'on' : ''}" ${mode === 'home' ? 'aria-current="page"' : ''} onclick="go('home')">${ICON.home}Overview</button>` + MODES.slice(1).filter(m => m[3] !== 'hist').map(([k, l, ic]) => `<button class="${mode === k ? 'on' : ''}" ${mode === k ? 'aria-current="page"' : ''} onclick="go('${k}')">${ic || ''}${l}</button>`).join('')
     + `<button class="${HIST_MODES.includes(mode) ? 'on' : ''}" onclick="tab('hist')">${ICON.clock}History</button>`;
   $('#tabbar').innerHTML = TABS.map(([k, l, ic, group]) => {
     const on = (group || [k]).includes(mode);
-    return `<button class="${on ? 'on' : ''}" onclick="tab('${k}')" aria-label="${l}">${ICON[ic]}<span>${l}</span></button>`;
+    return `<button class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''} onclick="tab('${k}')" aria-label="${l}">${ICON[ic]}<span>${l}</span></button>`;
   }).join('');
 }
 // Learn/Test tabs reopen whichever of the typed or spoken version you used last
@@ -177,9 +177,9 @@ function tab(k) {
 }
 function viaSwitch(group) {
   const [typed, spoken] = group === 'learn' ? ['learn', 'slearn'] : ['test', 'stest'];
-  return `<div class="via" role="tablist">
-    <button class="${mode === typed ? 'on' : ''}" onclick="go('${typed}')">${ICON.keyboard}Type</button>
-    <button class="${mode === spoken ? 'on' : ''}" onclick="go('${spoken}')">${ICON.mic}Say it</button></div>`;
+  return `<div class="via">
+    <button class="${mode === typed ? 'on' : ''}" aria-pressed="${mode === typed}" onclick="go('${typed}')">${ICON.keyboard}Type</button>
+    <button class="${mode === spoken ? 'on' : ''}" aria-pressed="${mode === spoken}" onclick="go('${spoken}')">${ICON.mic}Say it</button></div>`;
 }
 // Bring the answer feedback and its button into view (it can be below the fold on a phone)
 function reveal(sel) { const el = $(sel); if (el && innerWidth < 720) setTimeout(() => el.scrollIntoView({block: 'nearest', behavior: 'smooth'}), 30); }
@@ -190,11 +190,13 @@ function go(m, arg) {
   clearTimeout(SL.timer); clearTimeout(ST.timer); clearTimeout(T.timer); clearTimeout(L.timer); clearInterval(A.tick); clearInterval(RC.tick);
   Voice.cancel(); Speech.stop(); songLeave();
   if (!VOICE_MODES.includes(m) && Voice.state !== 'off') Voice.release();
+  const mode0 = booted ? mode : null;
   mode = m; nav(); window.scrollTo(0, 0);
   if (m === 'learn' || m === 'slearn') { S.learnVia = m; save(); }
   if (m === 'test' || m === 'stest') { S.testVia = m; save(); }
   if (HIST_MODES.includes(m)) { S.histVia = m; save(); }
-  if (location.hash !== '#' + m) history.replaceState(null, '', '#' + m);
+  document.title = (m === 'home' ? '' : (MODES.find(x => x[0] === m) || [])[1] + ' \u00b7 ') + 'ADPhi Study';
+  if (location.hash !== '#' + m) history[mode0 === null ? 'replaceState' : 'pushState'](null, '', '#' + m);
   ({home, flash: flashStart, learn: learnStart, slearn: slStart, test: testSetup, stest: stSetup, abc: abcStart, song: songStart, ref, tl: tlStart, sort: soStart, recall: rcStart})[m](arg);
 }
 function refresh() { go(mode); const d = document.querySelector('details.set'); if (d) d.open = true; }
@@ -302,17 +304,27 @@ function home() {
   $('#app').innerHTML = `
   <div class="hero"><h2>Know it cold. Say it out loud.</h2>
     <p>The symbols, colors, flower, motto, mission, Greek alphabet and our history. <span class="motto">Manus Multae Cor Unum &mdash; many hands, one heart.</span></p></div>
+  <h3 class="sec">Learn it <small>Start here. Weakest cards come first.</small></h3>
   <div class="modes">
     ${tile('slearn', 'Spoken Learn', 'See it, say it. New cards are previewed, misses are said back.', true, 'fastest')}
+    ${tile('learn', 'Learn', 'Multiple choice, then written, with hints.')}
+    ${tile('flash', 'Flashcards', 'Flip through the set at your own pace.')}
+  </div>
+  <h3 class="sec">Prove it <small>Check what you know.</small></h3>
+  <div class="modes">
     ${tile('stest', 'Spoken Test', 'Answer out loud, with a verdict after each one or at the end.', true)}
-    ${tile('learn', 'Learn', 'Multiple choice, then written, with hints. Weakest cards first.')}
     ${tile('test', 'Test', 'Instant feedback after every question, or a full exam.', false, 'instant')}
+  </div>
+  <h3 class="sec">Our history <small>Founders, refounders, presidents and houses.</small></h3>
+  <div class="modes">
+    ${tile('tl', 'Timeline', 'Put our chapter houses and presidents in order.')}
+    ${tile('sort', 'Sort', 'Drop each house, founder and president into its group.')}
+    ${tile('recall', 'List Recall', 'Name every founder, refounder, president and house.')}
+  </div>
+  <h3 class="sec">Drills and songs</h3>
+  <div class="modes">
     ${tile('abc', 'Alphabet Drill', 'Type the Greek alphabet in order, against the clock.')}
     ${tile('song', 'XAIPE Song', 'Sing along with the words in time to the song, one part at a time.')}
-    ${tile('tl', 'Timeline', 'Put our chapter houses and presidents in order.', false, 'history')}
-    ${tile('sort', 'Sort', 'Drop each house, founder and president into its group.', false, 'history')}
-    ${tile('recall', 'List Recall', 'Name every founder, refounder, president and house.', false, 'history')}
-    ${tile('flash', 'Flashcards', 'Flip through the set at your own pace.')}
     ${tile('ref', 'Reference', 'Every card on one page.')}
   </div>
   ${filterUI(false)}
@@ -420,7 +432,7 @@ function learnRender() {
     <div class="prompt ${longCls(c, L.dir)}">${promptHTML(c, L.dir)}</div>
     <div class="askline">${L.type === 'mc' ? 'Choose the ' : 'Write the '}${L.dir === 'td' ? (c.glyph ? 'letter name' : 'definition') : 'term'}</div>
     <div class="hint" id="hint"></div></div>
-  <div id="body">${body}</div><div id="fb"></div>`;
+  <div id="body">${body}</div><div id="fb" role="status" aria-live="polite"></div>`;
   const w = $('#wa');
   if (w) { w.focus(); w.addEventListener('keydown', e => { if (e.key === 'Enter' && (w.tagName === 'INPUT' || e.metaKey)) { e.preventDefault(); learnW(); } }); }
 }
@@ -517,7 +529,7 @@ function slRender() {
     <div class="prompt ${longCls(c, SL.dir)}">${promptHTML(c, SL.dir)}</div>
     <div class="askline">Say the ${SL.dir === 'td' ? (c.glyph ? 'letter name' : 'definition') : 'term'}</div>
     <div class="hint" id="hint"></div>
-    <div id="res"></div>
+    <div id="res" role="status" aria-live="polite"></div>
     ${micZone(keyHint('<kbd>Space</kbd> talk / stop &middot; <kbd>H</kbd> hint &middot; <kbd>S</kbd> don\'t know &middot; <kbd>L</kbd> hear it &middot; <kbd>Enter</kbd> next', 'The mic listens on its own. Tap it to stop or start.'))}
     ${typeBox()}</div>
   <div class="row acts" id="acts">${TOUCH ? `<button class="btn alt" onclick="slHint()">Hint</button><button class="btn ghost" onclick="slSkipCard()">Don't know</button>` : ''}</div>`;
@@ -681,7 +693,7 @@ function itRender() {
   $('#app').innerHTML = `
   <div class="top"><span>Question ${T.i + 1} of ${T.qs.length}</span><div class="bar"><i style="width:${T.i / T.qs.length * 100}%"></i></div><span id="tally">${T.pts}&#10003; ${T.miss}&#10007;</span></div>
   <div class="card"><div class="tag">${QT[q.t]}</div>${q.c && q.dir === 'td' ? img(q.c) : ''}<div class="prompt ${q.c ? longCls(q.c, q.dir) : ''}">${prompt}</div></div>
-  <div id="body">${body}</div><div id="fb"></div>`;
+  <div id="body">${body}</div><div id="fb" role="status" aria-live="polite"></div>`;
   const w = $('#wa');
   if (w) { w.focus(); w.addEventListener('keydown', e => { if (e.key === 'Enter' && (w.tagName === 'INPUT' || e.metaKey)) { e.preventDefault(); itW(); } }); }
 }
@@ -823,7 +835,7 @@ function stShow() {
   <div class="card">${tagHTML(c)}${q.dir === 'td' ? img(c) : ''}
     <div class="prompt ${longCls(c, q.dir)}">${promptHTML(c, q.dir)}</div>
     <div class="askline">Say the ${q.dir === 'td' ? (c.glyph ? 'letter name' : 'definition') : 'term'}</div>
-    <div id="res"></div>
+    <div id="res" role="status" aria-live="polite"></div>
     ${micZone(keyHint(`<kbd>Space</kbd> talk / stop &middot; ${ST.fb === 'instant' ? '' : '<kbd>R</kbd> redo &middot; '}<kbd>S</kbd> skip &middot; <kbd>Enter</kbd> next`, 'The mic listens on its own. Tap it to stop or start.'))}
     ${typeBox()}</div>
   <div class="row acts" id="acts"><button class="btn alt" onclick="stSkip()">Skip <kbd>S</kbd></button><span class="spacer"></span><button class="btn ghost" onclick="stDone()">End test</button></div>`;
@@ -1025,3 +1037,6 @@ Voice.use(S.engine || 'auto', false);
 Voice.probe();
 const start = location.hash.slice(1);
 go(MODES.some(m => m[0] === start) ? start : 'home');
+booted = true;
+// The browser's back and forward buttons move between sections
+addEventListener('popstate', () => { const m = location.hash.slice(1); if (MODES.some(x => x[0] === m) && m !== mode) go(m); });
