@@ -6,11 +6,6 @@
    List Recall  name every item of a list from memory (founders, refounders, presidents, houses)
  Data lives in data.js: TIMELINE, SORTS, LISTS.
 */
-const HIST_MODES = ['tl', 'sort', 'recall'];
-function histSwitch() {
-  const t = {tl: ['Timeline', ICON.clock], sort: ['Sort', ICON.sort], recall: ['Recall', ICON.recall]};
-  return `<div class="via three">${HIST_MODES.map(k => `<button class="${mode === k ? 'on' : ''}" aria-pressed="${mode === k}" onclick="go('${k}')">${t[k][1]}${t[k][0]}</button>`).join('')}</div>`;
-}
 const histChips = (items, on, fn) => `<div class="chips hchips">${items.map(([k, l]) => `<button class="chip ${on(k) ? 'on' : ''}" aria-pressed="${!!on(k)}" onclick="${fn}('${k}')">${esc(l)}</button>`).join('')}</div>`;
 const shakeEl = el => { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); };
 
@@ -51,8 +46,7 @@ function tlRender() {
   };
   const slots = TL.order.map(row).join('') + Array.from({length: n - TL.order.length}, (_, i) => `<li class="tl-row empty"><span class="n">${TL.order.length + i + 1}</span><span class="tl-blank">${i ? '' : 'Tap the event that came first'}</span></li>`).join('');
   const got = TL.checked ? TL.order.filter((e, i) => right[i] === e).length : 0;
-  $('#app').innerHTML = `${histSwitch()}
-  <div class="panel setup tl-set"><div><div class="flabel">Topics</div>${histChips(TL_GROUPS.map((g, i) => [i, g]), i => tlGroups().includes(+i), 'tlToggle')}</div>
+  $('#app').innerHTML = `  <div class="panel setup tl-set"><div><div class="flabel">Topics</div>${histChips(TL_GROUPS.map((g, i) => [i, g]), i => tlGroups().includes(+i), 'tlToggle')}</div>
     <div><div class="flabel">Events per round</div>${histChips([4, 5, 6, 8].map(k => [k, k]), k => TL.n === +k, 'tlSize')}</div></div>
   <div class="card tl-card"><div class="tag">Timeline &middot; earliest first</div>
     <ol class="tl-list">${slots}</ol>
@@ -102,8 +96,7 @@ function soStart(id) {
 }
 function soRender() {
   const d = SO.def, placed = SO.total - SO.pile.length;
-  $('#app').innerHTML = `${histSwitch()}
-  <div class="chips hchips sortpick">${SORTS.map(s => `<button class="chip ${s.id === d.id ? 'on' : ''}" onclick="soStart('${s.id}')">${esc(s.title)}</button>`).join('')}</div>
+  $('#app').innerHTML = `  <div class="chips hchips sortpick">${SORTS.map(s => `<button class="chip ${s.id === d.id ? 'on' : ''}" onclick="soStart('${s.id}')">${esc(s.title)}</button>`).join('')}</div>
   <div class="top"><span>${placed} / ${SO.total}</span><div class="bar"><i style="width:${placed / SO.total * 100}%"></i></div><span id="somiss">${SO.miss} miss${SO.miss === 1 ? '' : 'es'}</span></div>
   <div class="card so-card"><div class="tag">Sort</div><div class="so-ask">${esc(d.ask)}</div>
     ${SO.done ? '' : `<div class="so-pile" id="sopile">${SO.pile.map((x, k) => `<button class="so-item ${k === SO.sel ? 'sel' : ''}" onclick="soSel(${k})">${esc(x.text)}</button>`).join('')}</div>`}
@@ -157,8 +150,7 @@ function rcStart(id) {
 }
 function rcRender() {
   const d = RC.def, found = RC.got.filter(Boolean).length, best = store.get('rcBest', {})[d.id];
-  $('#app').innerHTML = `${histSwitch()}
-  <div class="chips hchips sortpick">${LISTS.map(l => `<button class="chip ${l.id === d.id ? 'on' : ''}" onclick="rcStart('${l.id}')">${esc(l.title)}</button>`).join('')}</div>
+  $('#app').innerHTML = `  <div class="chips hchips sortpick">${LISTS.map(l => `<button class="chip ${l.id === d.id ? 'on' : ''}" onclick="rcStart('${l.id}')">${esc(l.title)}</button>`).join('')}</div>
   <div class="top"><span id="rcpos">${found} / ${RC.items.length}</span><div class="bar"><i id="rcbar" style="width:${found / RC.items.length * 100}%"></i></div><span id="rctime">${RC.t0 ? fmtTime(performance.now() - RC.t0) : '0.0s'}</span></div>
   <div class="card rc-card"><div class="tag">List recall${best ? ` &middot; best ${fmtTime(best)}` : ''}</div><div class="so-ask">${esc(d.ask)}</div>
     ${RC.done ? '' : `<input type="text" id="rcin" class="abc-in rc-in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Type one, press Enter&hellip;">
