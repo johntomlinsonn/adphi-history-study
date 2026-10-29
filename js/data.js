@@ -110,77 +110,47 @@ CARDS.push(
 );
 
 /* TIMELINE: y = year, m = month (optional, orders events inside a year), g = group */
-const TL_GROUPS = ['Greek life', 'ADPhi', 'Illinois'];
+const TL_GROUPS = ['Houses', 'Presidents'];
 const TIMELINE = [
- {id: 'pbk', y: 1776, m: 12, g: 0, t: 'Phi Beta Kappa is founded at William and Mary'},
- {id: 'pbkyh', y: 1779, g: 0, t: 'Phi Beta Kappa has chapters at Yale and Harvard'},
- {id: 'kas', y: 1825, g: 0, t: 'Kappa Alpha Society is founded at Union College'},
- {id: 'union27', y: 1827, g: 0, t: 'Sigma Phi and Delta Phi are founded at Union College'},
- {id: 'pbknat', y: 1831, g: 0, t: 'Phi Beta Kappa becomes a national academic honor society'},
- {id: 'ato', y: 1865, g: 0, t: 'Alpha Tau Omega (VMI) and Kappa Alpha Order (Washington and Lee) are founded'},
- {id: 'snu', y: 1869, g: 0, t: 'Sigma Nu is founded at Virginia Military Institute'},
- {id: 'lexmon', y: 1983, g: 0, t: 'The Lexington Triad monument is dedicated'},
- {id: 'eells30', y: 1830, g: 1, t: 'Eells picks 2 men from each Hamilton society to found a new one'},
- {id: 'adphi', y: 1832, g: 1, t: 'Alpha Delta Phi is founded'},
- {id: 'cornell', y: 1878, g: 1, t: 'The Cornell chapter gets the first residential chapter home of any fraternity'},
- {id: 'charter', y: 1911, g: 2, t: 'Pi Theta is granted a charter'},
- {id: 'install', y: 1912, m: 1, g: 2, t: 'The Illinois chapter is installed at the University Club in Chicago'},
- {id: 'mansion', y: 1915, g: 2, t: 'The chapter moves into the first President’s mansion'},
- {id: 'temp', y: 1923, g: 2, t: 'The chapter lives in temporary quarters at 205 Green Street'},
- {id: 'newhouse', y: 1924, g: 2, t: 'The Historic Chapter House is built and the chapter moves in'},
- {id: 'ww2', y: 1943, g: 2, t: 'Fraternity houses become army barracks and women’s residences (WW2)'},
- {id: 'nrhp', y: 1990, g: 2, t: 'The Historic Chapter House joins the National Register of Historical Places'},
- {id: 'kicked', y: 2015, g: 2, t: 'The brothers are kicked out of the house by the alumni'},
- {id: 'shut', y: 2018, g: 2, t: 'The chapter is shut down and the old house is demolished and sold'},
- {id: 'build', y: 2020, g: 2, t: 'Construction of the new house begins; the chapter is refounded'},
- {id: 'done', y: 2021, m: 9, g: 2, t: 'The new and improved house is finished'},
- {id: 'luke', y: 2025, g: 2, t: 'Luke Wittenborn becomes president'},
+ {id: 'h1', y: 1910, g: 0, t: 'The chapter lives at 206 East Green Street (Pi Theta house)'},
+ {id: 'h2', y: 1915, g: 0, t: 'The chapter moves into the President’s mansion at 709 S Fourth Street'},
+ {id: 'h3', y: 1923, g: 0, t: 'The chapter lives in temporary quarters at 205 Green Street'},
+ {id: 'h4', y: 1924, g: 0, t: 'The chapter moves into The New House at 310 East John Street'},
+ {id: 'h5', y: 2018, g: 0, t: 'The chapter leaves 310 East John Street and the house is demolished'},
+ {id: 'h6', y: 2020, g: 0, t: 'The chapter’s new house at 401 East Daniel Street (2020 and beyond)'},
+ {id: 'p1', y: 2020, m: 2, g: 1, t: 'Zach Harrison becomes our first president (Supreme Leader)'},
+ {id: 'p2', y: 2022, g: 1, t: 'Clayton Haase becomes president'},
+ {id: 'p3', y: 2023, g: 1, t: 'Carter Evans becomes president'},
+ {id: 'p4', y: 2024, g: 1, t: 'Mitchell Cappell becomes president'},
+ {id: 'p5', y: 2025, g: 1, t: 'Luke Wittenborn becomes president'},
 ];
 
 /* SORTS: items go into buckets. item = [text, bucket index] */
 const SORTS = [
- {id: 'triad', title: 'Which triad?', ask: 'Put each fraternity in its triad',
-  buckets: ['Union Triad', 'Miami Triad', 'Lexington Triad'],
-  items: [['Kappa Alpha Society', 0], ['Sigma Phi', 0], ['Delta Phi', 0], ['Sigma Chi', 1], ['Phi Delta Theta', 1], ['Beta Theta Pi', 1],
-    ['Alpha Tau Omega', 2], ['Kappa Alpha Order', 2], ['Sigma Nu', 2]]},
- {id: 'where', title: 'Where was it founded?', ask: 'Put each fraternity at the school where it was founded',
-  buckets: ['William and Mary', 'Union College', 'Virginia Military Institute', 'Washington and Lee'],
-  items: [['Phi Beta Kappa', 0], ['Kappa Alpha Society', 1], ['Sigma Phi', 1], ['Delta Phi', 1], ['Alpha Tau Omega', 2], ['Sigma Nu', 2], ['Kappa Alpha Order', 3]]},
- {id: 'region', title: 'Which region?', ask: 'Put each triad in the part of the country it brought Greek life to',
-  buckets: ['Northeast (Union College)', 'The Midwest', 'The Deep South'],
-  items: [['Union Triad', 0], ['Miami Triad', 1], ['Lexington Triad', 2], ['Kappa Alpha Society', 0], ['Sigma Chi', 1], ['Beta Theta Pi', 1], ['Sigma Nu', 2], ['Delta Phi', 0], ['Phi Delta Theta', 1], ['Alpha Tau Omega', 2]]},
- {id: 'first', title: 'First or second?', ask: 'Was ADPhi the first or the second Greek letter fraternity on each campus?',
-  buckets: ['First', 'Second'],
-  items: [['Miami University', 0], ['New York University', 0], ['Columbia University', 0], ['Yale University', 0], ['Amherst College', 0], ['Brown University', 0],
-    ['Harvard University', 0], ['Hobart College', 0], ['Western Reserve University', 0], ['Bowdoin College', 0], ['University of Rochester', 0], ['College of City of New York', 0],
-    ['Hamilton College', 1], ['University of Alabama', 1], ['McGill University', 1]], pickN: 8},
  {id: 'house', title: 'Which chapter house?', ask: 'Match the years to the address',
   buckets: ['206 East Green Street', '709 S Fourth Street', '205 Green Street', '310 East John Street', '401 East Daniel Street'],
   items: [['1910 to 1915', 0], ['1915 to 1922', 1], ['1923 to 1924', 2], ['1924 to 2018', 3], ['2020 and beyond', 4],
     ['Pi Theta’s house', 0], ['The President’s mansion', 1], ['Temporary quarters', 2], ['The New House', 3], ['Where we are now', 4]]},
  {id: 'people', title: 'Which group of people?', ask: 'Sort the names into the group they belong to',
-  buckets: ['Founders of ADPhi (1832)', 'Founding fathers of the refounded chapter', 'Presidents since the refounding'],
+  buckets: ['Founders of ADPhi (1832)', 'Refounders of the Illinois chapter', 'Presidents since the refounding'],
   items: [['Samuel Eells', 0], ['Lorenzo Latham', 0], ['John Curtiss Underwood', 0], ['Oliver Andrew Morse', 0], ['Henry Lemuel Storrs', 0],
     ['Jacob Byrkit', 1], ['Henry Byrkit', 1], ['D.J. Dutton', 1], ['Paul Rampersaud', 1], ['Cam Ezell', 1],
     ['Clayton Haase', 2], ['Carter Evans', 2], ['Mitchell Cappell', 2], ['Luke Wittenborn', 2]], pickN: 9},
+ {id: 'term', title: 'Which president?', ask: 'Match each term to its president',
+  buckets: ['Zach Harrison', 'Clayton Haase', 'Carter Evans', 'Mitchell Cappell', 'Luke Wittenborn'],
+  items: [['2020 to 2021', 0], ['2021 to 2022', 0], ['2022 to 2023', 1], ['2023 to 2024', 2], ['2024 to 2025', 3], ['2025 on', 4]]},
 ];
 
 /* LISTS (List Recall): type the items in any order. clue = shown beside the blank. alt = other accepted answers */
 const LISTS = [
- {id: 'union', title: 'The Union Triad', ask: 'Name the three societies of the Union Triad', items: [
-  {a: 'Kappa Alpha Society', alt: ['Kappa Alpha']}, {a: 'Sigma Phi'}, {a: 'Delta Phi'}]},
- {id: 'miami', title: 'The Miami Triad', ask: 'Name the three fraternities of the Miami Triad', items: [
-  {a: 'Sigma Chi'}, {a: 'Phi Delta Theta'}, {a: 'Beta Theta Pi'}]},
- {id: 'lex', title: 'The Lexington Triad', ask: 'Name the three fraternities of the Lexington Triad', items: [
-  {a: 'Alpha Tau Omega', alt: ['ATO']}, {a: 'Kappa Alpha Order'}, {a: 'Sigma Nu', alt: ['SNU']}]},
  {id: 'founders', title: 'Our 5 founders (1832)', ask: 'Name the five founders of Alpha Delta Phi', items: [
   {a: 'Samuel Eells', alt: ['Eells']}, {a: 'Lorenzo Latham', alt: ['Latham']}, {a: 'John Curtiss Underwood', alt: ['Underwood', 'John Underwood']},
   {a: 'Oliver Andrew Morse', alt: ['Morse', 'Oliver Morse']}, {a: 'Henry Lemuel Storrs', alt: ['Storrs', 'Henry Storrs']}]},
- {id: 'fathers', title: 'Our 6 founding fathers', ask: 'Name the six founding fathers of the refounded Illinois chapter', items: [
+ {id: 'fathers', title: 'Our 6 refounders', ask: 'Name the six refounders (founding fathers) of the Illinois chapter', items: [
   {a: 'Jacob Byrkit', clue: 'Class of ’23', alt: ['Jacob']}, {a: 'Henry Byrkit', clue: 'Class of ’24', alt: ['Henry']}, {a: 'D.J. Dutton', clue: 'Class of ’24', alt: ['DJ Dutton', 'Dutton']},
   {a: 'Paul Rampersaud', clue: 'Class of ’24', alt: ['Rampersaud', 'Paul']}, {a: 'Zach Harrison', clue: 'Class of ’24', alt: ['Harrison', 'Zach']}, {a: 'Cam Ezell', clue: 'Transferred', alt: ['Ezell', 'Cameron Ezell']}]},
  {id: 'pres', title: 'Our presidents', ask: 'Name each president of the refounded chapter', items: [
-  {a: 'Zach Harrison', clue: '2020 to 2022', alt: ['Harrison', 'Zach']}, {a: 'Clayton Haase', clue: '2022 to 2023', alt: ['Haase', 'Clayton']}, {a: 'Carter Evans', clue: '2023 to 2024', alt: ['Evans', 'Carter']},
+  {a: 'Zach Harrison', clue: '2020 to 2022 (two terms)', alt: ['Harrison', 'Zach']}, {a: 'Clayton Haase', clue: '2022 to 2023', alt: ['Haase', 'Clayton']}, {a: 'Carter Evans', clue: '2023 to 2024', alt: ['Evans', 'Carter']},
   {a: 'Mitchell Cappell', clue: '2024 to 2025', alt: ['Cappell', 'Mitchell']}, {a: 'Luke Wittenborn', clue: '2025 on', alt: ['Wittenborn', 'Luke']}]},
  {id: 'houses', title: 'Our chapter houses', ask: 'Give the address of each chapter house', items: [
   {a: '206 East Green Street', clue: '1910 to 1915 (Pi Theta)', alt: ['206 Green Street', '206 East Green']},
@@ -188,13 +158,6 @@ const LISTS = [
   {a: '205 Green Street', clue: '1923 to 1924 (temporary quarters)', alt: ['205 Green']},
   {a: '310 East John Street', clue: '1924 to 2018 (The New House)', alt: ['310 John Street', '310 East John']},
   {a: '401 East Daniel Street', clue: '2020 and beyond', alt: ['401 Daniel Street', '401 East Daniel']}]},
- {id: 'first', title: 'First on 12 campuses', ask: 'ADPhi was the first Greek letter fraternity on 12 campuses. Name them', items: [
-  {a: 'Miami University', alt: ['Miami']}, {a: 'New York University', alt: ['NYU']}, {a: 'Columbia University', alt: ['Columbia']}, {a: 'Yale University', alt: ['Yale']},
-  {a: 'Amherst College', alt: ['Amherst']}, {a: 'Brown University', alt: ['Brown']}, {a: 'Harvard University', alt: ['Harvard']}, {a: 'Hobart College', alt: ['Hobart']},
-  {a: 'Western Reserve University', alt: ['Western Reserve']}, {a: 'Bowdoin College', alt: ['Bowdoin']}, {a: 'University of Rochester', alt: ['Rochester']},
-  {a: 'College of City of New York', alt: ['CCNY', 'City College of New York', 'City College']}]},
- {id: 'second', title: 'Second on 3 campuses', ask: 'ADPhi was the second Greek letter fraternity on 3 campuses. Name them', items: [
-  {a: 'Hamilton College', alt: ['Hamilton']}, {a: 'University of Alabama', alt: ['Alabama']}, {a: 'McGill University', alt: ['McGill']}]},
 ];
 
 /* ---------- the song ----------

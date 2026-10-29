@@ -76,16 +76,13 @@ and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12
 
 Three topics (**Greek Life History**, **ADPhi Founding**, **Illinois Chapter**, about 70 cards) come from the
 chapter history presentation. They work in every mode above (Flashcards, Learn, Spoken Learn, Test, Spoken Test).
-Three modes fit this kind of material better, under the **History** tab:
+The **History** tab holds only the chapter's people and houses: our founders, the refounders, the presidents and their dates,
+and the houses we have lived in. It has three modes:
 
-- **Timeline**: a handful of events are shuffled; tap them in the order they happened, then check. Dates appear
-  after checking, and events you misplace come back more often. Filter by Greek life, ADPhi or Illinois.
-- **Sort**: drop each name in its group (fraternity into Union / Miami / Lexington Triad, fraternity to founding school,
-  campus to first or second, years to chapter house address, name to founders / refounders / presidents).
-  A wrong group shakes and counts as a miss. Keys `1`-`5` drop the highlighted item.
-- **List Recall**: type every item of a list in any order (the 5 founders, 6 founding fathers, presidents, house addresses,
-  the 12 campuses where we were first). Answers use the same forgiving grading as the other modes, so a last name
-  or a short name ("NYU", "Eells") works. `Tab` shows first-letter hints, and your best clean time is saved.
+- **Timeline**: shuffled houses or presidents; tap them in the order they happened, then check. Dates appear after checking.
+- **Sort**: match years to chapter house addresses, names to founders / refounders / presidents, and terms to presidents.
+- **List Recall**: type the 5 founders, 6 refounders, presidents (with their years) or house addresses (with their years) from memory.
+  Short answers like "Eells" work, `Tab` shows first-letter hints, and your best clean time is saved.
 
 The data is in `js/data.js` (`CARDS` via `H(...)`, `TIMELINE`, `SORTS`, `LISTS`); the modes are in `js/history.js`.
 Topics added after your last visit are switched on automatically.

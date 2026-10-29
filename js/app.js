@@ -309,9 +309,9 @@ function home() {
     ${tile('test', 'Test', 'Instant feedback after every question, or a full exam.', false, 'instant')}
     ${tile('abc', 'Alphabet Drill', 'Type the Greek alphabet in order, against the clock.')}
     ${tile('song', 'XAIPE Song', 'Sing along with the words in time to the song, one part at a time.')}
-    ${tile('tl', 'Timeline', 'Put events in order, from Phi Beta Kappa in 1776 to our new house.', false, 'history')}
-    ${tile('sort', 'Sort', 'Triads, founding schools, houses: drop each name in its group.', false, 'history')}
-    ${tile('recall', 'List Recall', 'Name every founder, president or campus from memory.', false, 'history')}
+    ${tile('tl', 'Timeline', 'Put our chapter houses and presidents in order.', false, 'history')}
+    ${tile('sort', 'Sort', 'Drop each house, founder and president into its group.', false, 'history')}
+    ${tile('recall', 'List Recall', 'Name every founder, refounder, president and house.', false, 'history')}
     ${tile('flash', 'Flashcards', 'Flip through the set at your own pace.')}
     ${tile('ref', 'Reference', 'Every card on one page.')}
   </div>
@@ -329,7 +329,7 @@ function home() {
     <li>Spoken Learn on <b>Greek Alphabet</b>, then the Alphabet Drill until you can type it with no mistakes.</li>
     <li>Spoken Learn on <b>Motto &amp; Mission</b>. The mission is taught a piece at a time, then as a whole.</li>
     <li>Test with instant feedback until you score 100%, then a Spoken Test with feedback at the end.</li>
-    <li>Spoken Learn on <b>Greek Life History</b>, <b>ADPhi Founding</b> and <b>Illinois Chapter</b>. Then <b>Timeline</b> for the dates, <b>Sort</b> for the triads, and <b>List Recall</b> for the names.</li>
+    <li>Spoken Learn on <b>Greek Life History</b>, <b>ADPhi Founding</b> and <b>Illinois Chapter</b>. Then <b>Timeline</b> for the houses and presidents, <b>Sort</b> and <b>List Recall</b> for the founders, refounders and presidents.</li>
     <li>Learn <b>XAIPE</b> in the Song section, a part at a time, until you can sing it with the words hidden.</li></ol></div>`;
 }
 

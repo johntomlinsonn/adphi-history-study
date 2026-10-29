@@ -2,8 +2,8 @@
  The history cards (Greek Life History, ADPhi Founding, Illinois Chapter) work in every study mode.
  These three modes suit the kinds of facts they hold:
    Timeline     put events in order (dates and "what came first")
-   Sort         put names into the group they belong to (triads, campuses, houses)
-   List Recall  name every item of a list from memory (founders, presidents, campuses)
+   Sort         put names into the group they belong to (houses, people, presidents' terms)
+   List Recall  name every item of a list from memory (founders, refounders, presidents, houses)
  Data lives in data.js: TIMELINE, SORTS, LISTS.
 */
 const HIST_MODES = ['tl', 'sort', 'recall'];
@@ -21,7 +21,7 @@ const shakeEl = el => { if (!el) return; el.classList.remove('shake'); void el.o
 let TL = {};
 const tlKey = e => e.y + (e.m || 0) / 13;
 const tlWhen = e => e.y + '';
-function tlGroups() { const g = S.tlg || TL_GROUPS.map((_, i) => i); return g.length ? g : TL_GROUPS.map((_, i) => i); }
+function tlGroups() { const all = TL_GROUPS.map((_, i) => i), g = (S.tlg || all).filter(i => all.includes(i)); return g.length ? g : all; }
 function tlStart() {
   TL = {n: S.tln || 5};
   tlRound();
