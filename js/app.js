@@ -151,35 +151,40 @@ const Speech = {
 const MODES = [
   ['home', 'Overview'], ['flash', 'Flashcards', ICON.cards], ['learn', 'Learn', ICON.learn], ['slearn', 'Spoken Learn', ICON.mic],
   ['test', 'Test', ICON.test], ['stest', 'Spoken Test', ICON.mic], ['abc', 'Alphabet Drill', ICON.abc], ['song', 'XAIPE Song', ICON.music], ['ref', 'Reference', ICON.list],
-  ['tl', 'Timeline', ICON.clock, 'hist'], ['sort', 'Sort', ICON.sort, 'hist'], ['recall', 'List Recall', ICON.recall, 'hist'],
+  ['tl', 'Timeline', ICON.clock], ['sort', 'Sort', ICON.sort], ['recall', 'List Recall', ICON.recall],
 ];
 const VOICE_MODES = ['slearn', 'stest'];
-// Phone tab bar: Learn and Test each cover a typed and a spoken mode (switch at the top of the page)
-const TABS = [['home', 'Home', 'home'], ['flash', 'Cards', 'cards'], ['learn', 'Learn', 'learn', ['learn', 'slearn']], ['test', 'Test', 'test', ['test', 'stest']], ['abc', 'Alphabet', 'abc'], ['song', 'Song', 'music'], ['hist', 'History', 'clock', HIST_MODES]];
+/* The site is a pipeline: 1 Learn it, 2 Drill it, 3 Test it. The header (wide screens) and the bottom bar (phones)
+   show the three steps; each page shows the modes inside its step and a link to the next step. */
+const STAGES = [
+  {id: 'learn', n: 1, label: 'Learn', goal: 'Meet each card, then say it.', modes: [['flash', 'Flashcards'], ['learn', 'Learn'], ['slearn', 'Spoken Learn']]},
+  {id: 'drill', n: 2, label: 'Drill', goal: 'Lock it in with practice.', modes: [['abc', 'Alphabet'], ['song', 'XAIPE Song'], ['tl', 'Timeline'], ['sort', 'Sort'], ['recall', 'List Recall']]},
+  {id: 'test', n: 3, label: 'Test', goal: 'Check what you know.', modes: [['test', 'Test'], ['stest', 'Spoken Test']]},
+];
+const stageOf = m => STAGES.find(s => s.modes.some(x => x[0] === m));
 const TOUCH = matchMedia('(hover: none) and (pointer: coarse)').matches;
 document.documentElement.classList.toggle('touch', TOUCH);
 let mode = 'home', booted = false;
 const KEYS = {song: songKey, tl: tlKeyDown, sort: soKeyDown, recall: rcKeyDown};
 function nav() {
-  $('#nav').innerHTML = `<button class="${mode === 'home' ? 'on' : ''}" ${mode === 'home' ? 'aria-current="page"' : ''} onclick="go('home')">${ICON.home}Overview</button>` + MODES.slice(1).filter(m => m[3] !== 'hist').map(([k, l, ic]) => `<button class="${mode === k ? 'on' : ''}" ${mode === k ? 'aria-current="page"' : ''} onclick="go('${k}')">${ic || ''}${l}</button>`).join('')
-    + `<button class="${HIST_MODES.includes(mode) ? 'on' : ''}" onclick="tab('hist')">${ICON.clock}History</button>`;
-  $('#tabbar').innerHTML = TABS.map(([k, l, ic, group]) => {
-    const on = (group || [k]).includes(mode);
-    return `<button class="${on ? 'on' : ''}" ${on ? 'aria-current="page"' : ''} onclick="tab('${k}')" aria-label="${l}">${ICON[ic]}<span>${l}</span></button>`;
-  }).join('');
+  const st = stageOf(mode);
+  const cur = on => on ? ' aria-current="page"' : '';
+  const num = n => `<i class="num">${n}</i>`;
+  const items = [['home', 'Home', ICON.home, mode === 'home'],
+    ...STAGES.map(s => [s.id, s.label, num(s.n), st === s]),
+    ['ref', 'Reference', ICON.list, mode === 'ref']];
+  const btn = ([k, l, ic, on]) => `<button class="${on ? 'on' : ''}"${cur(on)} onclick="tab('${k}')">${ic}<span>${l}</span></button>`;
+  $('#nav').innerHTML = btn(items[0]) + '<span class="gap"></span>' + items.slice(1, 4).map(btn).join('<span class="chev" aria-hidden="true">&rsaquo;</span>') + '<span class="gap"></span>' + btn(items[4]);
+  $('#tabbar').innerHTML = items.map(btn).join('');
+  const next = st && STAGES[STAGES.indexOf(st) + 1];
+  $('#sub').innerHTML = st ? `<div class="subin"><div class="subhead"><b>Step ${st.n} of 3 &middot; ${st.label}</b><small>${st.goal}</small></div>
+    <div class="subtabs" role="group" aria-label="${st.label} modes">${st.modes.map(([k, l]) => `<button class="${k === mode ? 'on' : ''}" aria-pressed="${k === mode}" onclick="go('${k}')">${l}</button>`).join('')}</div>
+    ${next ? `<button class="nextstep" onclick="tab('${next.id}')">Next: ${next.label} &rsaquo;</button>` : `<button class="nextstep" onclick="go('home')">All done? Back to Home &rsaquo;</button>`}</div>` : '';
 }
-// Learn/Test tabs reopen whichever of the typed or spoken version you used last
+// A step button reopens whichever mode of that step you used last
 function tab(k) {
-  if (k === 'learn') return go(S.learnVia || 'learn');
-  if (k === 'test') return go(S.testVia || 'test');
-  if (k === 'hist') return go(S.histVia || 'tl');
-  go(k);
-}
-function viaSwitch(group) {
-  const [typed, spoken] = group === 'learn' ? ['learn', 'slearn'] : ['test', 'stest'];
-  return `<div class="via">
-    <button class="${mode === typed ? 'on' : ''}" aria-pressed="${mode === typed}" onclick="go('${typed}')">${ICON.keyboard}Type</button>
-    <button class="${mode === spoken ? 'on' : ''}" aria-pressed="${mode === spoken}" onclick="go('${spoken}')">${ICON.mic}Say it</button></div>`;
+  const st = STAGES.find(s => s.id === k);
+  go(st ? (S.via?.[k] && st.modes.some(m => m[0] === S.via[k]) ? S.via[k] : st.modes[0][0]) : k);
 }
 // Bring the answer feedback and its button into view (it can be below the fold on a phone)
 function reveal(sel) { const el = $(sel); if (el && innerWidth < 720) setTimeout(() => el.scrollIntoView({block: 'nearest', behavior: 'smooth'}), 30); }
@@ -192,9 +197,8 @@ function go(m, arg) {
   if (!VOICE_MODES.includes(m) && Voice.state !== 'off') Voice.release();
   const mode0 = booted ? mode : null;
   mode = m; nav(); window.scrollTo(0, 0);
-  if (m === 'learn' || m === 'slearn') { S.learnVia = m; save(); }
-  if (m === 'test' || m === 'stest') { S.testVia = m; save(); }
-  if (HIST_MODES.includes(m)) { S.histVia = m; save(); }
+  const st = stageOf(m);
+  if (st && S.via?.[st.id] !== m) { S.via = {...S.via, [st.id]: m}; save(); }
   document.title = (m === 'home' ? '' : (MODES.find(x => x[0] === m) || [])[1] + ' \u00b7 ') + 'ADPhi Study';
   if (location.hash !== '#' + m) history[mode0 === null ? 'replaceState' : 'pushState'](null, '', '#' + m);
   ({home, flash: flashStart, learn: learnStart, slearn: slStart, test: testSetup, stest: stSetup, abc: abcStart, song: songStart, ref, tl: tlStart, sort: soStart, recall: rcStart})[m](arg);
@@ -293,6 +297,19 @@ async function micReady() {
 }
 
 /* ---------- home ---------- */
+// [name, one-line description, voice, tag] for each mode's home tile
+const DESC = {
+  flash: ['Flashcards', 'Flip through the set at your own pace.'],
+  learn: ['Learn', 'Multiple choice, then written, with hints.'],
+  slearn: ['Spoken Learn', 'See it, say it. Misses are said back.', true, 'fastest'],
+  abc: ['Alphabet Drill', 'Type the Greek alphabet in order, against the clock.'],
+  song: ['XAIPE Song', 'Sing along, one part at a time.'],
+  tl: ['Timeline', 'Put our houses and presidents in order.'],
+  sort: ['Sort', 'Drop each name or year in its group.'],
+  recall: ['List Recall', 'Name every founder, refounder, president and house.'],
+  test: ['Test', 'Instant feedback, or a full exam.'],
+  stest: ['Spoken Test', 'Answer out loud, graded after each or at the end.', true],
+};
 let HOME_WEAK = [];
 function home() {
   const ids = pool().map(c => c.id);
@@ -303,30 +320,11 @@ function home() {
   const tile = (k, t, d, voice, tagline) => `<button class="mode ${voice ? 'voice' : ''}" onclick="go('${k}')"><div class="ic">${MODES.find(m => m[0] === k)[2]}</div><b>${t}${tagline ? `<em>${tagline}</em>` : ''}</b><span>${d}</span></button>`;
   $('#app').innerHTML = `
   <div class="hero"><h2>Know it cold. Say it out loud.</h2>
-    <p>The symbols, colors, flower, motto, mission, Greek alphabet and our history. <span class="motto">Manus Multae Cor Unum &mdash; many hands, one heart.</span></p></div>
-  <h3 class="sec">Learn it <small>Start here. Weakest cards come first.</small></h3>
-  <div class="modes">
-    ${tile('slearn', 'Spoken Learn', 'See it, say it. New cards are previewed, misses are said back.', true, 'fastest')}
-    ${tile('learn', 'Learn', 'Multiple choice, then written, with hints.')}
-    ${tile('flash', 'Flashcards', 'Flip through the set at your own pace.')}
-  </div>
-  <h3 class="sec">Prove it <small>Check what you know.</small></h3>
-  <div class="modes">
-    ${tile('stest', 'Spoken Test', 'Answer out loud, with a verdict after each one or at the end.', true)}
-    ${tile('test', 'Test', 'Instant feedback after every question, or a full exam.', false, 'instant')}
-  </div>
-  <h3 class="sec">Our history <small>Founders, refounders, presidents and houses.</small></h3>
-  <div class="modes">
-    ${tile('tl', 'Timeline', 'Put our chapter houses and presidents in order.')}
-    ${tile('sort', 'Sort', 'Drop each house, founder and president into its group.')}
-    ${tile('recall', 'List Recall', 'Name every founder, refounder, president and house.')}
-  </div>
-  <h3 class="sec">Drills and songs</h3>
-  <div class="modes">
-    ${tile('abc', 'Alphabet Drill', 'Type the Greek alphabet in order, against the clock.')}
-    ${tile('song', 'XAIPE Song', 'Sing along with the words in time to the song, one part at a time.')}
-    ${tile('ref', 'Reference', 'Every card on one page.')}
-  </div>
+    <p>The symbols, colors, flower, motto, mission, Greek alphabet and our history. <span class="motto">Manus Multae Cor Unum &mdash; many hands, one heart.</span></p>
+    <button class="btn gold" onclick="tab('learn')">Start with step 1: Learn</button></div>
+  <ol class="pipe">${STAGES.map(st => `<li class="pstep"><div class="pnum" aria-hidden="true">${st.n}</div>
+    <div class="pbody"><h3>${st.label} it <small>${st.goal}</small></h3>
+    <div class="modes">${st.modes.map(([k]) => tile(k, ...DESC[k])).join('')}</div></div></li>`).join('')}</ol>
   ${filterUI(false)}
   <div class="panel"><h3>Your progress</h3>
     <div class="stats"><div class="stat"><b>${strong}/${ids.length}</b><span>cards strong (3+ right in a row)</span></div>
@@ -335,14 +333,7 @@ function home() {
     ${weak.length ? `<p class="muted"><b>Missed last time:</b> ${weak.map(c => termHTML(c)).join(' &middot; ')}</p>
       <div class="row"><button class="btn" onclick="go('slearn', HOME_WEAK)">${micIcon(16)} Practice these</button></div>` : ''}
     ${r + w ? `<button class="btn ghost" onclick="if(confirm('Reset progress?')){for(const k in STATS)delete STATS[k];store.set('stats',STATS);home()}">Reset progress</button>` : ''}
-  </div>
-  <div class="panel"><h3>Study plan</h3><ol class="plan">
-    <li>Spoken Learn on <b>Symbols</b> and <b>Colors</b> until you can say each meaning without looking.</li>
-    <li>Spoken Learn on <b>Greek Alphabet</b>, then the Alphabet Drill until you can type it with no mistakes.</li>
-    <li>Spoken Learn on <b>Motto &amp; Mission</b>. The mission is taught a piece at a time, then as a whole.</li>
-    <li>Test with instant feedback until you score 100%, then a Spoken Test with feedback at the end.</li>
-    <li>Spoken Learn on <b>Greek Life History</b>, <b>ADPhi Founding</b> and <b>Illinois Chapter</b>. Then <b>Timeline</b> for the houses and presidents, <b>Sort</b> and <b>List Recall</b> for the founders, refounders and presidents.</li>
-    <li>Learn <b>XAIPE</b> in the Song section, a part at a time, until you can sing it with the words hidden.</li></ol></div>`;
+  </div>`;
 }
 
 /* ---------- flashcards ---------- */
@@ -426,7 +417,7 @@ function learnRender() {
     body = (ans.length > 60 ? `<textarea id="wa" placeholder="Type the answer"></textarea>` : `<input type="text" id="wa" placeholder="Type the answer" autocomplete="off">`) +
       `<div class="row" style="margin-top:10px"><button class="btn" onclick="learnW()">Check</button><button class="btn alt" onclick="learnHint()">Hint <kbd>H</kbd></button><button class="btn ghost" onclick="learnSkip()">Don't know</button></div>`;
   }
-  $('#app').innerHTML = `${viaSwitch('learn')}${filterUI()}
+  $('#app').innerHTML = `${filterUI()}
   <div class="top"><span>${L.mastered()}/${L.items.length} mastered</span>${segs(L)}<span id="tally">${L.right}&#10003; ${L.wrong}&#10007;</span></div>
   <div class="card">${tagHTML(c)}${L.dir === 'td' ? img(c) : ''}
     <div class="prompt ${longCls(c, L.dir)}">${promptHTML(c, L.dir)}</div>
@@ -502,7 +493,7 @@ function slStart(cards) {
   cards = cards || pool(); if (!cards.length) return empty();
   SL = Object.assign(Sched(cards), {token: 0, phase: 'intro'});
   if (Voice.state !== 'off') return slNext();
-  $('#app').innerHTML = `${viaSwitch('learn')}${filterUI()}${voiceBanner()}
+  $('#app').innerHTML = `${filterUI()}${voiceBanner()}
   <div class="card"><h2>Spoken Learn</h2>
     <p>Each card shows a term. <b>Say the answer out loud.</b> The mic listens on its own and stops when you pause.</p>
     <div class="row start-row"><button class="btn" onclick="slBegin()">${micIcon(18)} Start speaking <kbd>Space</kbd></button></div>
@@ -523,7 +514,7 @@ function slNext() {
 }
 function slRender() {
   const c = SL.cur;
-  $('#app').innerHTML = `${viaSwitch('learn')}${filterUI()}${voiceBanner()}
+  $('#app').innerHTML = `${filterUI()}${voiceBanner()}
   <div class="top"><span>${SL.mastered()}/${SL.items.length} mastered</span>${segs(SL)}<span id="tally">${SL.right}&#10003; ${SL.wrong}&#10007;</span></div>
   <div class="card">${tagHTML(c)}${SL.dir === 'td' ? img(c) : ''}
     <div class="prompt ${longCls(c, SL.dir)}">${promptHTML(c, SL.dir)}</div>
@@ -637,7 +628,7 @@ function testSetup() {
   const max = pool().length; if (!max) return empty();
   S.testN = Math.min(S.testN, max) || max;
   T = {};
-  $('#app').innerHTML = `${viaSwitch('test')}${filterUI()}<div class="panel setup"><h2>Test</h2>
+  $('#app').innerHTML = `${filterUI()}<div class="panel setup"><h2>Test</h2>
   <div><div class="flabel">Feedback</div>${seg('fb', [['instant', 'Instant, after every question'], ['end', 'At the end, like an exam']])}</div>
   <div><div class="flabel">Questions</div><input type="number" id="tn" min="1" max="${max}" value="${S.testN}" style="width:110px"> <span class="muted">of ${max}</span></div>
   <div><div class="flabel">Question types</div><div class="chips">${Object.entries(QT).map(([k, l]) => `<button class="chip ${S.types[k] ? 'on' : ''}" onclick="S.types.${k}=!S.types.${k};save();this.classList.toggle('on')">${l}</button>`).join('')}</div></div>
@@ -811,7 +802,7 @@ function stSetup() {
   const max = pool().length; if (!max) return empty();
   S.stN = Math.min(S.stN, max) || max;
   ST = {phase: 'setup'};
-  $('#app').innerHTML = `${viaSwitch('test')}${filterUI()}${voiceBanner()}<div class="panel setup"><h2>Spoken Test</h2>
+  $('#app').innerHTML = `${filterUI()}${voiceBanner()}<div class="panel setup"><h2>Spoken Test</h2>
   <p class="muted" style="margin:0">One card at a time. Say each answer out loud.</p>
   <div><div class="flabel">Feedback</div>${seg('sfb', [['instant', 'Instant, after every answer'], ['end', 'At the end, like an oral exam']])}</div>
   <div><div class="flabel">Questions</div><input type="number" id="stn" min="1" max="${max}" value="${S.stN}" style="width:110px"> <span class="muted">of ${max}</span></div>

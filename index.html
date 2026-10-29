@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#185932">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ADPhi Study">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <title>ADPhi Study</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23185932'/><text x='16' y='22' font-size='16' text-anchor='middle' fill='%23ffd65e' font-family='Georgia'>&#913;</text></svg>">
 <link rel="stylesheet" href="css/app.css">
@@ -11,11 +17,11 @@
 <body>
 <header><div class="hwrap">
   <button class="brand" onclick="go('home')"><span class="mark">&Alpha;&Delta;&Phi;</span><span><b>ADPhi Study</b><small>Manus Multae Cor Unum</small></span></button>
-  <nav id="nav" aria-label="Sections"></nav>
+  <nav id="nav" aria-label="Steps"></nav>
   <span class="vpill" id="vpill"><i></i>Checking voice</span>
 </div></header>
+<div id="sub" class="sub"></div>
 <main id="app"></main>
-<footer class="foot"><button onclick="go('home')">Overview</button><button onclick="go('ref')">Reference</button><button onclick="go('slearn')">Spoken Learn</button><button onclick="go('stest')">Spoken Test</button></footer>
 <nav class="tabbar" id="tabbar" aria-label="Main sections"></nav>
 <script src="js/data.js"></script>
 <script src="js/grade.js"></script>

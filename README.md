@@ -89,9 +89,12 @@ Topics added after your last visit are switched on automatically.
 
 ## Usability and accessibility
 
-- Home groups the modes by what you are doing: **Learn it**, **Prove it**, **Our history**, **Drills and songs**.
-- Every section can be reached from the top bar (wide screens), the bottom tab bar (phones) and the home tiles. A footer
-  on every page links to Overview, Reference, Spoken Learn and Spoken Test, which have no phone tab of their own.
+- The site is a three-step pipeline: **1 Learn** (Flashcards, Learn, Spoken Learn), **2 Drill** (Alphabet, XAIPE Song,
+  Timeline, Sort, List Recall) and **3 Test** (Test, Spoken Test). The header (wide screens) or bottom bar (phones) shows
+  Home, the three steps and Reference. Each page shows its step, the modes inside it, and a "Next" link to the following step.
+- Home lays the same steps out top to bottom with a "Start with step 1" button.
+- Phones: five-item bottom bar, 44px tap targets, safe-area padding for notches, no sideways scrolling down to 320px wide,
+  and the site can be added to the home screen (web app manifest and icons).
 - The browser's back and forward buttons move between sections, and the tab title names the section.
 - Touch screens get 44px tap targets. Keyboard focus is always visible. Toggle buttons announce on/off, the current
   section is marked, answer feedback is read out by screen readers, and animation is reduced if the device asks for it.
