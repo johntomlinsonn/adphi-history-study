@@ -1,8 +1,8 @@
 # ADPhi Study
 
-A Quizlet-style study site for the Alpha Delta Phi symbols, colors, flower, motto, mission and the Greek alphabet.
+A Quizlet-style study site for the Alpha Delta Phi symbols, colors, flower, motto, mission, the Greek alphabet and our history.
 
-Modes: **Flashcards**, **Learn**, **Spoken Learn**, **Test**, **Spoken Test**, **Alphabet Drill**, **XAIPE Song**, **Reference**.
+Modes: **Flashcards**, **Learn**, **Spoken Learn**, **Test**, **Spoken Test**, **Alphabet Drill**, **XAIPE Song**, **Reference**, plus three history modes: **Timeline**, **Sort** and **List Recall**.
 
 ## Use it online
 
@@ -72,6 +72,30 @@ The song plays right on the page, with a seek bar and speeds of 0.75×, 0.9× an
 Lyrics and timings are saved in your browser. To put them on the site for everyone, use **Copy lyrics with timings**
 and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12.50] words of the line`.
 
+## History
+
+Three topics (**Greek Life History**, **ADPhi Founding**, **Illinois Chapter**, about 70 cards) come from the
+chapter history presentation. They work in every mode above (Flashcards, Learn, Spoken Learn, Test, Spoken Test).
+The **History** tab holds only the chapter's people and houses: our founders, the refounders, the presidents and their dates,
+and the houses we have lived in. It has three modes:
+
+- **Timeline**: shuffled houses or presidents; tap them in the order they happened, then check. Dates appear after checking.
+- **Sort**: match years to chapter house addresses, names to founders / refounders / presidents, and terms to presidents.
+- **List Recall**: type the 5 founders, 6 refounders, presidents (with their years) or house addresses (with their years) from memory.
+  Short answers like "Eells" work, `Tab` shows first-letter hints, and your best clean time is saved.
+
+The data is in `js/data.js` (`CARDS` via `H(...)`, `TIMELINE`, `SORTS`, `LISTS`); the modes are in `js/history.js`.
+Topics added after your last visit are switched on automatically.
+
+## Usability and accessibility
+
+- Home groups the modes by what you are doing: **Learn it**, **Prove it**, **Our history**, **Drills and songs**.
+- Every section can be reached from the top bar (wide screens), the bottom tab bar (phones) and the home tiles. A footer
+  on every page links to Overview, Reference, Spoken Learn and Spoken Test, which have no phone tab of their own.
+- The browser's back and forward buttons move between sections, and the tab title names the section.
+- Touch screens get 44px tap targets. Keyboard focus is always visible. Toggle buttons announce on/off, the current
+  section is marked, answer feedback is read out by screen readers, and animation is reduced if the device asks for it.
+
 ## Learning features
 
 - **Test with instant feedback:** the Test and Spoken Test setups have a Feedback switch (instant, or at the end).
@@ -94,6 +118,7 @@ and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12
 - `js/whisper-worker.js`: in-browser Whisper (transformers.js) in a Web Worker
 - `js/app.js`: all study modes
 - `js/song.js`: the XAIPE Song section (lyrics, playback, sync, sing-along)
+- `js/history.js`: Timeline, Sort and List Recall
 - `audio/xaipe.mp3`: the recording
 - `server.py`: static server plus `/api/transcribe` (MLX Whisper), callable from the Pages site
 - `images/`: add `star.png`, `crescent.png`, `sword-spear.png`, `monument.png`, `lily-of-the-valley.png` (see `images/README.md`)
