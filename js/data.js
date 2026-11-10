@@ -77,6 +77,7 @@ CARDS.push(
   ['h2', 'Where was the chapter house from 1915 to 1922?', '709 South Fourth Street (President’s mansion)', {alt: ['709 South Fourth Street']}],
   ['h3', 'Where was the temporary quarters from 1923 to 1924?', '205 Green Street', {alt: ['205 Green']}],
   ['h4', 'Where was “The New House”, from 1924 to 2018?', '310 East John Street', {alt: ['310 East John']}],
+  ['h5', 'Where was the chapter house from Fall 1943 to Spring 1946?', 'Unknown: most fraternities on campus became army barracks and women’s residences because of WW2', {alt: ['Unknown', 'Army barracks and women’s residences', 'Unknown (WW2)']}],
   ['h6', 'Where is the chapter house from 2020 and beyond?', '401 East Daniel Street', {alt: ['401 East Daniel']}],
   ['nfound', 'How many founding fathers did the refounded Illinois chapter have?', '6', {alt: ['Six']}],
   ['found6', 'Who were the 6 founding fathers of the refounded chapter?', 'Jacob Byrkit, Henry Byrkit, D.J. Dutton, Paul Rampersaud, Zach Harrison, Cam Ezell', {thr: .7}],
@@ -104,7 +105,6 @@ const HISTORY_ARCHIVE = {
   ['historic', 'When was the Historic Chapter House built?', '1924 to 1925', {alt: ['1924-1925', '1924 and 1925']}],
   ['nrhp', 'When was the Historic Chapter House placed on the National Register of Historical Places?', '1990'],
   ['standup', 'What was ADPhi always known as?', 'A house of stand-up men', {alt: ['A house of standup men']}],
-  ['ww2', 'What happened to most fraternities on campus from Fall 1943 to Spring 1946?', 'They became army barracks and women’s residences because of World War 2', {alt: ['Army barracks and women’s residence because of WW2']}],
   ['whykicked', 'Why were the brothers kicked out of the house?', 'Hazing, destruction of the house (throwing kegs out of the window), and not caring for the house', {alt: ['Hazing, destruction of the house, and people not taking care of the house'], thr: .7}],
   ['notuni', 'Was the chapter kicked off campus by the University?', 'No, the alumni pulled the chapter off campus', {alt: ['No, the alumni pulled this chapter off campus']}],
   ['demolished', 'What happened to the old house after the 2018 shutdown?', 'It was demolished and sold for the apartment buildings that are there today', {alt: ['Demolished and sold for apartment buildings']}],
@@ -126,6 +126,7 @@ const TIMELINE = [
  {id: 'h1', y: 1910, g: 0, t: 'The chapter lives at 206 East Green Street (Pi Theta house)'},
  {id: 'h2', y: 1915, g: 0, t: 'The chapter moves into the President’s mansion at 709 S Fourth Street'},
  {id: 'h3', y: 1923, g: 0, t: 'The chapter lives in temporary quarters at 205 Green Street'},
+ {id: 'hww2', y: 1943, g: 0, t: 'Fall 1943 to Spring 1946: house unknown, most fraternities became army barracks and women’s residences (WW2)'},
  {id: 'h4', y: 1924, g: 0, t: 'The chapter moves into The New House at 310 East John Street'},
  {id: 'h5', y: 2018, g: 0, t: 'The chapter leaves 310 East John Street and the house is demolished'},
  {id: 'h6', y: 2020, g: 0, t: 'The chapter’s new house at 401 East Daniel Street (2020 and beyond)'},
@@ -139,9 +140,9 @@ const TIMELINE = [
 /* SORTS: items go into buckets. item = [text, bucket index] */
 const SORTS = [
  {id: 'house', title: 'Which chapter house?', ask: 'Match the years to the address',
-  buckets: ['206 East Green Street', '709 S Fourth Street', '205 Green Street', '310 East John Street', '401 East Daniel Street'],
-  items: [['1910 to 1915', 0], ['1915 to 1922', 1], ['1923 to 1924', 2], ['1924 to 2018', 3], ['2020 and beyond', 4],
-    ['Pi Theta’s house', 0], ['The President’s mansion', 1], ['Temporary quarters', 2], ['The New House', 3], ['Where we are now', 4]]},
+  buckets: ['206 East Green Street', '709 S Fourth Street', '205 Green Street', '310 East John Street', 'Unknown (WW2)', '401 East Daniel Street'],
+  items: [['1910 to 1915', 0], ['1915 to 1922', 1], ['1923 to 1924', 2], ['1924 to 2018', 3], ['2020 and beyond', 5], ['Fall 1943 to Spring 1946', 4],
+    ['Pi Theta’s house', 0], ['The President’s mansion', 1], ['Temporary quarters', 2], ['The New House', 3], ['Where we are now', 5], ['Army barracks and women’s residences', 4]]},
  {id: 'people', title: 'Which group of people?', ask: 'Sort the names into the group they belong to',
   buckets: ['Founders of ADPhi (1832)', 'Refounders of the Illinois chapter', 'Presidents since the refounding'],
   items: [['Samuel Eells', 0], ['Lorenzo Latham', 0], ['John Curtiss Underwood', 0], ['Oliver Andrew Morse', 0], ['Henry Lemuel Storrs', 0],
@@ -168,6 +169,7 @@ const LISTS = [
   {a: '709 South Fourth Street', clue: '1915 to 1922 (President’s mansion)', alt: ['709 S Fourth Street', '709 Fourth Street']},
   {a: '205 Green Street', clue: '1923 to 1924 (temporary quarters)', alt: ['205 Green']},
   {a: '310 East John Street', clue: '1924 to 2018 (The New House)', alt: ['310 John Street', '310 East John']},
+  {a: 'Unknown', clue: 'Fall 1943 to Spring 1946 (WW2 army barracks)', alt: ['Unknown (WW2)', 'Army barracks', 'WW2', 'Don’t know']},
   {a: '401 East Daniel Street', clue: '2020 and beyond', alt: ['401 Daniel Street', '401 East Daniel']}]},
 ];
 
