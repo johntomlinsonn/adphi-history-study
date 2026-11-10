@@ -74,7 +74,7 @@ and paste the text into `SONG.text` in `js/data.js`. Each line looks like `[0:12
 
 ## History
 
-Three topics (**Greek Life History**, **ADPhi Founding**, **Illinois Chapter**, about 70 cards) come from the
+Three topics (**Greek Life History**, **ADPhi Founding**, **Illinois Chapter**, a trimmed set of cards) come from the
 chapter history presentation. They work in every mode above (Flashcards, Learn, Spoken Learn, Test, Spoken Test).
 The **History** tab holds only the chapter's people and houses: our founders, the refounders, the presidents and their dates,
 and the houses we have lived in. It has three modes:
@@ -84,6 +84,7 @@ and the houses we have lived in. It has three modes:
 - **List Recall**: type the 5 founders, 6 refounders, presidents (with their years) or house addresses (with their years) from memory.
   Short answers like "Eells" work, `Tab` shows first-letter hints, and your best clean time is saved.
 
+Cards taken off the site are kept in `HISTORY_ARCHIVE` in `js/data.js` (not loaded); move rows back into the matching `H(...)` call to restore them.
 The data is in `js/data.js` (`CARDS` via `H(...)`, `TIMELINE`, `SORTS`, `LISTS`); the modes are in `js/history.js`.
 Topics added after your last visit are switched on automatically.
 

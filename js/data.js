@@ -62,35 +62,49 @@ CARDS.push(
  ...H('ADPhi Founding', [
   ['eells', 'Who founded Alpha Delta Phi?', 'Samuel Eells', {alt: ['Eells']}],
   ['hamilton', 'At which college did Samuel Eells found Alpha Delta Phi?', 'Hamilton College', {alt: ['Hamilton']}],
+  ['birthplace', 'What was the original house of ADPhi?', 'Kirkland House', {alt: ['Kirkland House at Hamilton College']}],
+  ['1832', 'In what year was Alpha Delta Phi originally founded?', '1832'],
+  ['nfounders', 'How many founders did Alpha Delta Phi have?', '5', {alt: ['Five']}],
+  ['founders', 'Who were the 5 founders of Alpha Delta Phi?', 'Samuel Eells, Lorenzo Latham, John Curtiss Underwood, Oliver Andrew Morse, Henry Lemuel Storrs', {thr: .7}],
+ ]),
+ ...H('Illinois Chapter', [
+  ['charter', 'When was Pi Theta officially granted a charter?', '1911'],
+  ['installed', 'When was the Illinois chapter installed?', 'January 13th, 1912', {alt: ['January 13, 1912']}],
+  ['refounded', 'When was the Illinois chapter refounded?', '2020'],
+  ['shutdown', 'When was the Illinois chapter shut down?', '2018'],
+  ['kicked', 'When were the brothers kicked out of the house?', '2015'],
+  ['h1', 'Where was the chapter house from 1910 to 1915?', '206 East Green Street (Pi Theta)', {alt: ['206 East Green Street']}],
+  ['h2', 'Where was the chapter house from 1915 to 1922?', '709 South Fourth Street (President’s mansion)', {alt: ['709 South Fourth Street']}],
+  ['h3', 'Where was the temporary quarters from 1923 to 1924?', '205 Green Street', {alt: ['205 Green']}],
+  ['h4', 'Where was “The New House”, from 1924 to 2018?', '310 East John Street', {alt: ['310 East John']}],
+  ['h6', 'Where is the chapter house from 2020 and beyond?', '401 East Daniel Street', {alt: ['401 East Daniel']}],
+  ['nfound', 'How many founding fathers did the refounded Illinois chapter have?', '6', {alt: ['Six']}],
+  ['found6', 'Who were the 6 founding fathers of the refounded chapter?', 'Jacob Byrkit, Henry Byrkit, D.J. Dutton, Paul Rampersaud, Zach Harrison, Cam Ezell', {thr: .7}],
+  ['pres', 'Who have been the presidents of the refounded chapter, in order?', 'Zach Harrison, Clayton Haase, Carter Evans, Mitchell Cappell, Luke Wittenborn', {ordered: true, thr: .7}],
+ ]),
+);
+
+/* ARCHIVE: history cards taken off the site on request but kept here so they can be brought back.
+ To restore, move rows into the matching H(...) call above (same row format). Nothing here is loaded by the app. */
+const HISTORY_ARCHIVE = {
+ 'ADPhi Founding': [
   ['lit', 'What two literary societies did Eells find at Hamilton College?', 'The Phoenix and the Philopeuthian', {alt: ['Phoenix and Philolpeuthian', 'Phoenix and Philopeuthian']}],
   ['whyeells', 'Why did Eells want to start his own society?', 'He disliked their recruitment tactics and small size, and wanted a society that did not promote jealousy or hatred', {alt: ['He disliked the recruitment tactics and small size of the societies and wanted one that did not promote jealousy or hatred']}],
   ['1830', 'What did Eells do in 1830?', 'Selected 2 men from each society and founded a new society', {alt: ['He selected two men from each society']}],
   ['ideals', 'What were the new society’s ideals based on?', 'The loftiest of intellectual and moral ideas', {alt: ['The loftiest of intellectual and moral ideals']}],
-  ['1832', 'By what year had Eells founded Alpha Delta Phi?', '1832'],
-  ['nfounders', 'How many founders did Alpha Delta Phi have?', '5', {alt: ['Five']}],
-  ['founders', 'Who were the 5 founders of Alpha Delta Phi?', 'Samuel Eells, Lorenzo Latham, John Curtiss Underwood, Oliver Andrew Morse, Henry Lemuel Storrs', {thr: .7}],
   ['emblem', 'Who designed the fraternity’s emblem and symbols?', 'Eells and Latham', {alt: ['Samuel Eells and Lorenzo Latham']}],
-  ['birthplace', 'What is the birthplace of ADPhi?', 'Kirkland House', {alt: ['Kirkland House at Hamilton College']}],
   ['cornell', 'What was special about the ADPhi chapter at Cornell in 1878?', 'It was the first established residential chapter home of any fraternity', {alt: ['First residential chapter home of any fraternity']}],
   ['first12', 'ADPhi was the first Greek letter fraternity on how many of the listed campuses?', '12', {alt: ['Twelve']}],
   ['second3', 'ADPhi was the second Greek letter fraternity at which three campuses?', 'Hamilton College, University of Alabama, McGill University', {alt: ['Hamilton, Alabama, McGill']}],
- ]),
- ...H('Illinois Chapter', [
+ ],
+ 'Illinois Chapter': [
   ['pitheta', 'What was the Illinois chapter before it became ADPhi?', 'Pi Theta'],
-  ['charter', 'When was Pi Theta officially granted a charter?', '1911'],
-  ['installed', 'When was the Illinois chapter installed?', 'January 13th, 1912', {alt: ['January 13, 1912']}],
   ['installedwhere', 'Where was the Illinois chapter installed?', 'The University Club in Chicago', {alt: ['University Club in Chicago']}],
   ['mansion', 'Where did the chapter live from 1915 to 1922?', 'The mansion of the first President of the University', {alt: ['The first President’s mansion']}],
   ['historic', 'When was the Historic Chapter House built?', '1924 to 1925', {alt: ['1924-1925', '1924 and 1925']}],
   ['nrhp', 'When was the Historic Chapter House placed on the National Register of Historical Places?', '1990'],
   ['standup', 'What was ADPhi always known as?', 'A house of stand-up men', {alt: ['A house of standup men']}],
-  ['h1', 'Where was the chapter house from 1910 to 1915?', '206 East Green Street (Pi Theta)', {alt: ['206 East Green Street']}],
-  ['h2', 'Where was the chapter house from 1915 to 1922?', '709 South Fourth Street (President’s mansion)', {alt: ['709 South Fourth Street']}],
-  ['h3', 'Where was the temporary quarters from 1923 to 1924?', '205 Green Street', {alt: ['205 Green']}],
-  ['h4', 'Where was “The New House”, from 1924 to 2018?', '310 East John Street', {alt: ['310 East John']}],
   ['ww2', 'What happened to most fraternities on campus from Fall 1943 to Spring 1946?', 'They became army barracks and women’s residences because of World War 2', {alt: ['Army barracks and women’s residence because of WW2']}],
-  ['h6', 'Where is the chapter house from 2020 and beyond?', '401 East Daniel Street', {alt: ['401 East Daniel']}],
-  ['kicked', 'When were the brothers kicked out of the house?', '2015'],
   ['whykicked', 'Why were the brothers kicked out of the house?', 'Hazing, destruction of the house (throwing kegs out of the window), and not caring for the house', {alt: ['Hazing, destruction of the house, and people not taking care of the house'], thr: .7}],
   ['notuni', 'Was the chapter kicked off campus by the University?', 'No, the alumni pulled the chapter off campus', {alt: ['No, the alumni pulled this chapter off campus']}],
   ['demolished', 'What happened to the old house after the 2018 shutdown?', 'It was demolished and sold for the apartment buildings that are there today', {alt: ['Demolished and sold for apartment buildings']}],
@@ -98,16 +112,13 @@ CARDS.push(
   ['architects', 'Who designed the new and improved house?', 'ADPhi alumni architects', {alt: ['Alumni architects']}],
   ['kept', 'Which historic features of the old house were kept in the new one?', 'Wood panel ceilings, paintings, and the fire pit', {alt: ['Wood panel ceilings, paintings, fire pit']}],
   ['built', 'When did construction of the new house begin and finish?', 'Began in 2020, finished in Fall of 2021', {alt: ['2020 to Fall 2021', 'Began 2020 and finished Fall 2021']}],
-  ['nfound', 'How many founding fathers did the refounded Illinois chapter have?', '6', {alt: ['Six']}],
-  ['found6', 'Who were the 6 founding fathers of the refounded chapter?', 'Jacob Byrkit, Henry Byrkit, D.J. Dutton, Paul Rampersaud, Zach Harrison, Cam Ezell', {thr: .7}],
   ['first', 'Who was the first president of the refounded chapter?', 'Zach Harrison, the Supreme Leader', {alt: ['Zach Harrison']}],
-  ['pres', 'Who have been the presidents of the refounded chapter, in order?', 'Zach Harrison, Clayton Haase, Carter Evans, Mitchell Cappell, Luke Wittenborn', {ordered: true, thr: .7}],
   ['p2223', 'Who was president in 2022 to 2023?', 'Clayton Haase'],
   ['p2324', 'Who was president in 2023 to 2024?', 'Carter Evans'],
   ['p2425', 'Who was president in 2024 to 2025?', 'Mitchell Cappell'],
   ['p25', 'Who became president in 2025?', 'Luke Wittenborn'],
- ]),
-);
+ ],
+};
 
 /* TIMELINE: y = year, m = month (optional, orders events inside a year), g = group */
 const TL_GROUPS = ['Houses', 'Presidents'];
