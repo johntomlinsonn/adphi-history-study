@@ -27,14 +27,16 @@ const micIcon = n => ICON.mic.replace('<svg', `<svg width="${n}" height="${n}"`)
 
 /* ---------- settings ---------- */
 const CATS = [...new Set(CARDS.map(c => c.cat))];
+const OFF_BY_DEFAULT = ['Greek Life History'];   // topics that start switched off (turn on with the Topics chips)
 const S = Object.assign({
-  cats: CATS, engine: 'auto', dir: 'td', autoListen: true, autoAdvance: true, patient: false, preview: true, readAloud: false,
+  cats: CATS.filter(c => !OFF_BY_DEFAULT.includes(c)), engine: 'auto', dir: 'td', autoListen: true, autoAdvance: true, patient: false, preview: true, readAloud: false,
   testN: 15, types: {mc: true, tf: true, w: true, match: true}, stN: 10, fb: 'instant', sfb: 'instant',
 }, store.get('settings', {}));
 S.cats = S.cats.filter(c => CATS.includes(c));
 // Topics added since the last visit start switched on (a topic you turned off yourself stays off)
 const OLD_CATS = ['Symbols', 'Colors', 'Motto & Mission', 'Greek Alphabet'];
-S.cats = [...S.cats, ...CATS.filter(c => !(S.knownCats || OLD_CATS).includes(c) && !S.cats.includes(c))];
+S.cats = [...S.cats, ...CATS.filter(c => !(S.knownCats || OLD_CATS).includes(c) && !S.cats.includes(c) && !OFF_BY_DEFAULT.includes(c))];
+if (!S.offDefaultDone) { S.cats = S.cats.filter(c => !OFF_BY_DEFAULT.includes(c)); S.offDefaultDone = true; }
 S.knownCats = CATS;
 if (!S.cats.length) S.cats = CATS;
 const save = () => store.set('settings', S);
