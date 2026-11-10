@@ -62,18 +62,8 @@ CARDS.push(
  ...H('ADPhi Founding', [
   ['eells', 'Who founded Alpha Delta Phi?', 'Samuel Eells', {alt: ['Eells']}],
   ['hamilton', 'At which college did Samuel Eells found Alpha Delta Phi?', 'Hamilton College', {alt: ['Hamilton']}],
-  ['lit', 'What two literary societies did Eells find at Hamilton College?', 'The Phoenix and the Philopeuthian', {alt: ['Phoenix and Philolpeuthian', 'Phoenix and Philopeuthian']}],
-  ['whyeells', 'Why did Eells want to start his own society?', 'He disliked their recruitment tactics and small size, and wanted a society that did not promote jealousy or hatred', {alt: ['He disliked the recruitment tactics and small size of the societies and wanted one that did not promote jealousy or hatred']}],
-  ['1830', 'What did Eells do in 1830?', 'Selected 2 men from each society and founded a new society', {alt: ['He selected two men from each society']}],
-  ['ideals', 'What were the new society’s ideals based on?', 'The loftiest of intellectual and moral ideas', {alt: ['The loftiest of intellectual and moral ideals']}],
-  ['1832', 'By what year had Eells founded Alpha Delta Phi?', '1832'],
   ['nfounders', 'How many founders did Alpha Delta Phi have?', '5', {alt: ['Five']}],
   ['founders', 'Who were the 5 founders of Alpha Delta Phi?', 'Samuel Eells, Lorenzo Latham, John Curtiss Underwood, Oliver Andrew Morse, Henry Lemuel Storrs', {thr: .7}],
-  ['emblem', 'Who designed the fraternity’s emblem and symbols?', 'Eells and Latham', {alt: ['Samuel Eells and Lorenzo Latham']}],
-  ['birthplace', 'What is the birthplace of ADPhi?', 'Kirkland House', {alt: ['Kirkland House at Hamilton College']}],
-  ['cornell', 'What was special about the ADPhi chapter at Cornell in 1878?', 'It was the first established residential chapter home of any fraternity', {alt: ['First residential chapter home of any fraternity']}],
-  ['first12', 'ADPhi was the first Greek letter fraternity on how many of the listed campuses?', '12', {alt: ['Twelve']}],
-  ['second3', 'ADPhi was the second Greek letter fraternity at which three campuses?', 'Hamilton College, University of Alabama, McGill University', {alt: ['Hamilton, Alabama, McGill']}],
  ]),
  ...H('Illinois Chapter', [
   ['pitheta', 'What was the Illinois chapter before it became ADPhi?', 'Pi Theta'],
