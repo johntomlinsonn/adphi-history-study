@@ -85,7 +85,7 @@ CARDS.push(
   ['found6', 'Who were the 6 founding fathers of the refounded chapter?', 'Jacob Byrkit, Henry Byrkit, D.J. Dutton, Paul Rampersaud, Zach Harrison, Cam Ezell', {thr: .7}],
  ]),
  ...H('Illinois Presidents', [
-  ['pres', 'Who have been the presidents of the refounded chapter, in order?', 'Zach Harrison, Clayton Haase, Carter Evans, Mitchell Cappell, Luke Wittenborn', {ordered: true, thr: .7}],
+  ['pres', 'Who have been the presidents of the refounded chapter, in order?', 'Zach Harrison, Clayton Haase, Carter Evans, Mitchell Cappell, Luke Wittenborn, Blake Calcione', {ordered: true, thr: .7}],
  ]),
 );
 
@@ -134,11 +134,12 @@ const TIMELINE = [
  {id: 'h4', y: 1924, g: 0, t: 'The chapter moves into The New House at 310 East John Street'},
  {id: 'h5', y: 2018, g: 0, t: 'The chapter leaves 310 East John Street and the house is demolished'},
  {id: 'h6', y: 2020, g: 0, t: 'The chapter’s new house at 401 East Daniel Street (2020 and beyond)'},
- {id: 'p1', y: 2020, m: 2, g: 1, t: 'Zach Harrison becomes our first president (Supreme Leader)'},
+ {id: 'p1', y: 2020, m: 2, g: 1, t: 'Zach Harrison becomes president'},
  {id: 'p2', y: 2022, g: 1, t: 'Clayton Haase becomes president'},
  {id: 'p3', y: 2023, g: 1, t: 'Carter Evans becomes president'},
  {id: 'p4', y: 2024, g: 1, t: 'Mitchell Cappell becomes president'},
  {id: 'p5', y: 2025, g: 1, t: 'Luke Wittenborn becomes president'},
+ {id: 'p6', y: 2026, g: 1, t: 'Blake Calcione becomes president (current)'},
 ];
 
 /* SORTS: items go into buckets. item = [text, bucket index] */
@@ -151,10 +152,10 @@ const SORTS = [
   buckets: ['Founders of ADPhi (1832)', 'Refounders of the Illinois chapter', 'Presidents since the refounding'],
   items: [['Samuel Eells', 0], ['Lorenzo Latham', 0], ['John Curtiss Underwood', 0], ['Oliver Andrew Morse', 0], ['Henry Lemuel Storrs', 0],
     ['Jacob Byrkit', 1], ['Henry Byrkit', 1], ['D.J. Dutton', 1], ['Paul Rampersaud', 1], ['Cam Ezell', 1],
-    ['Clayton Haase', 2], ['Carter Evans', 2], ['Mitchell Cappell', 2], ['Luke Wittenborn', 2]], pickN: 9},
+    ['Clayton Haase', 2], ['Carter Evans', 2], ['Mitchell Cappell', 2], ['Luke Wittenborn', 2], ['Blake Calcione', 2]], pickN: 9},
  {id: 'term', title: 'Which president?', ask: 'Match each term to its president',
-  buckets: ['Zach Harrison', 'Clayton Haase', 'Carter Evans', 'Mitchell Cappell', 'Luke Wittenborn'],
-  items: [['2020 to 2021', 0], ['2021 to 2022', 0], ['2022 to 2023', 1], ['2023 to 2024', 2], ['2024 to 2025', 3], ['2025 on', 4]]},
+  buckets: ['Zach Harrison', 'Clayton Haase', 'Carter Evans', 'Mitchell Cappell', 'Luke Wittenborn', 'Blake Calcione'],
+  items: [['2020 to 2021', 0], ['2021 to 2022', 0], ['2022 to 2023', 1], ['2023 to 2024', 2], ['2024 to 2025', 3], ['2025 to 2026', 4], ['2026 on', 5]]},
 ];
 
 /* LISTS (List Recall): type the items in any order. clue = shown beside the blank. alt = other accepted answers */
@@ -167,7 +168,8 @@ const LISTS = [
   {a: 'Paul Rampersaud', clue: 'Class of ’24', alt: ['Rampersaud', 'Paul']}, {a: 'Zach Harrison', clue: 'Class of ’24', alt: ['Harrison', 'Zach']}, {a: 'Cam Ezell', clue: 'Transferred', alt: ['Ezell', 'Cameron Ezell']}]},
  {id: 'pres', title: 'Our presidents', ask: 'Name each president of the refounded chapter', items: [
   {a: 'Zach Harrison', clue: '2020 to 2022 (two terms)', alt: ['Harrison', 'Zach']}, {a: 'Clayton Haase', clue: '2022 to 2023', alt: ['Haase', 'Clayton']}, {a: 'Carter Evans', clue: '2023 to 2024', alt: ['Evans', 'Carter']},
-  {a: 'Mitchell Cappell', clue: '2024 to 2025', alt: ['Cappell', 'Mitchell']}, {a: 'Luke Wittenborn', clue: '2025 on', alt: ['Wittenborn', 'Luke']}]},
+  {a: 'Mitchell Cappell', clue: '2024 to 2025', alt: ['Cappell', 'Mitchell']}, {a: 'Luke Wittenborn', clue: '2025 to 2026', alt: ['Wittenborn', 'Luke']},
+  {a: 'Blake Calcione', clue: '2026 on (current)', alt: ['Calcione', 'Blake']}]},
  {id: 'houses', title: 'Our chapter houses', ask: 'Give the address of each chapter house', items: [
   {a: '206 East Green Street', clue: '1910 to 1915 (Pi Theta)', alt: ['206 Green Street', '206 East Green']},
   {a: '709 South Fourth Street', clue: '1915 to 1922 (President’s mansion)', alt: ['709 S Fourth Street', '709 Fourth Street']},
