@@ -67,7 +67,7 @@ CARDS.push(
   ['nfounders', 'How many founders did Alpha Delta Phi have?', '5', {alt: ['Five']}],
   ['founders', 'Who were the 5 founders of Alpha Delta Phi?', 'Samuel Eells, Lorenzo Latham, John Curtiss Underwood, Oliver Andrew Morse, Henry Lemuel Storrs', {thr: .7}],
  ]),
- ...H('Illinois Chapter', [
+ ...H('Illinois Addresses', [
   ['charter', 'When was Pi Theta officially granted a charter?', '1911'],
   ['installed', 'When was the Illinois chapter installed?', 'January 13th, 1912', {alt: ['January 13, 1912']}],
   ['refounded', 'When was the Illinois chapter refounded?', '2020'],
@@ -79,8 +79,12 @@ CARDS.push(
   ['h4', 'Where was “The New House”, from 1924 to 2018?', '310 East John Street', {alt: ['310 East John']}],
   ['h5', 'Where was the chapter house from Fall 1943 to Spring 1946?', 'Unknown: most fraternities on campus became army barracks and women’s residences because of WW2', {alt: ['Unknown', 'Army barracks and women’s residences', 'Unknown (WW2)']}],
   ['h6', 'Where is the chapter house from 2020 and beyond?', '401 East Daniel Street', {alt: ['401 East Daniel']}],
+ ]),
+ ...H('Illinois Refounders', [
   ['nfound', 'How many founding fathers did the refounded Illinois chapter have?', '6', {alt: ['Six']}],
   ['found6', 'Who were the 6 founding fathers of the refounded chapter?', 'Jacob Byrkit, Henry Byrkit, D.J. Dutton, Paul Rampersaud, Zach Harrison, Cam Ezell', {thr: .7}],
+ ]),
+ ...H('Illinois Presidents', [
   ['pres', 'Who have been the presidents of the refounded chapter, in order?', 'Zach Harrison, Clayton Haase, Carter Evans, Mitchell Cappell, Luke Wittenborn', {ordered: true, thr: .7}],
  ]),
 );
